@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>社労士 学習管理</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Kaisei+Decol:wght@700&display=swap');
+:root {
+  --bg:#f5f3ee; --surface:#fff; --border:#e5dfd4; --text:#28231e;
+  --sub:#9e9890; --accent:#d44d28; --green:#3a9e6e;
+  --roki:#f28b82; --anei:#f6ae5c; --rosai:#5dbf85; --koyo:#42b0d8;
+  --choshu:#9b72d0; --kenpo:#f07ba8; --konen:#3ec9bc; --kokunen:#f0a83a;
+  --rouichi:#b05ec0; --shaichi:#5aaee8;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);padding-bottom:76px;min-height:100vh;}
+
+/* ヘッダー */
+.hdr{background:var(--text);color:#fff;padding:13px 16px 11px;position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;justify-content:space-between;}
+.hdr-title{font-family:'Kaisei Decol',serif;font-size:18px;letter-spacing:.02em;}
+.hdr-days{font-size:13px;color:var(--roki);font-weight:700;}
+.hdr-date{font-size:10px;color:#777;margin-top:1px;text-align:right;}
+
+/* ナビ */
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--text);display:flex;z-index:300;
+  border-top:1px solid #383028;}
+.nav-btn{flex:1;padding:8px 0 14px;background:none;border:none;color:#665e58;
+  font-size:9px;font-family:inherit;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s;}
+.nav-btn .ic{font-size:21px;}
+.nav-btn.on{color:var(--roki);}
+
+/* ページ */
+.page{display:none;padding:14px;}
+.page.on{display:block;}
+
+/* 汎用カード */
+.card{background:var(--surface);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.card-ttl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:24px;
+  padding:9px 20px;font-size:13px;font-family:inherit;cursor:pointer;font-weight:700;transition:opacity .15s;}
+.btn:active{opacity:.7;}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--text);}
+.btn-danger{background:none;border:1.5px solid #e74c3c;color:#e74c3c;}
+
+/* 入力 */
+.inp{width:100%;border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-family:inherit;font-size:13px;color:var(--text);
+  background:var(--bg);outline:none;transition:border-color .2s;}
+.inp:focus{border-color:var(--accent);}
+textarea.inp{resize:none;}
+
+/* ========== HOME ========== */
+.countdown{text-align:center;padding:22px 0 18px;}
+.cd-num{font-family:'Kaisei Decol',serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1.3;font-variant-numeric:lining-nums;-webkit-text-size-adjust:100%;}
+.cd-label{font-size:13px;color:var(--sub);margin-top:4px;}
+.cd-date{font-size:11px;color:#ccc;margin-top:8px;}
+
+.phase-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-bottom:5px;}
+.phasebar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#eee;}
+.ps{height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:700;color:rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;}
+.phase-now{font-size:11px;font-weight:700;text-align:center;margin-top:6px;color:var(--accent);}
+
+.subj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.subj-card{border-radius:12px;padding:10px;position:relative;overflow:hidden;
+  border:2px solid transparent;transition:border-color .2s;}
+.subj-card-name{font-size:14px;font-weight:700;color:rgba(0,0,0,.75);margin-bottom:8px;}
+.subj-act-row{display:flex;flex-direction:column;gap:5px;}
+.subj-act-btn{display:flex;align-items:center;justify-content:space-between;
+  border:none;border-radius:8px;padding:6px 8px;font-family:inherit;cursor:pointer;
+  background:rgba(255,255,255,.55);transition:background .15s;width:100%;}
+.subj-act-btn:active{background:rgba(255,255,255,.85);}
+.subj-act-btn.done{background:rgba(255,255,255,.9);}
+.subj-act-label{font-size:11px;font-weight:700;color:rgba(0,0,0,.65);display:flex;align-items:center;gap:4px;}
+.subj-act-days{font-size:10px;color:rgba(0,0,0,.4);white-space:nowrap;}
+.subj-act-days.warn{color:#c0392b;font-weight:700;}
+.subj-act-days.ok{color:rgba(0,0,0,.35);}
+.subj-act-check{font-size:12px;}
+
+/* ========== 論点カード ========== */
+.filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
+.chip{padding:5px 13px;border-radius:20px;border:1.5px solid var(--border);
+  font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;
+  background:var(--surface);transition:all .15s;color:var(--text);}
+.chip.on{color:#fff;border-color:transparent;}
+
+.add-futo-btn{width:100%;padding:13px;border:2px dashed var(--border);
+  border-radius:14px;background:none;font-size:14px;color:var(--sub);
+  cursor:pointer;font-family:inherit;margin-bottom:12px;transition:background .2s;}
+.add-futo-btn:active{background:var(--border);}
+
+/* 付箋グリッド */
+.futo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* 付箋カード */
+.futo-card{
+  border-radius:3px 14px 14px 14px;padding:12px;
+  min-height:110px;position:relative;
+  box-shadow:2px 4px 10px rgba(0,0,0,.09);
+  cursor:grab;transition:transform .15s,box-shadow .15s;
+  user-select:none;
+}
+.futo-card.dragging{opacity:.5;transform:scale(.97);cursor:grabbing;box-shadow:none;}
+.futo-card.drag-over{outline:2px dashed rgba(0,0,0,.3);outline-offset:2px;}
+.futo-corner{position:absolute;top:0;left:0;width:0;height:0;
+  border-style:solid;border-width:22px 22px 0 0;
+  border-color:rgba(0,0,0,.13) transparent transparent transparent;}
+.futo-subj{font-size:10px;font-weight:700;color:rgba(0,0,0,.45);margin-bottom:6px;margin-left:10px;}
+.futo-body{font-size:13px;font-weight:700;line-height:1.55;color:rgba(0,0,0,.78);}
+.futo-next{font-size:11px;color:rgba(0,0,0,.52);margin-top:8px;line-height:1.45;
+  border-top:1px solid rgba(0,0,0,.1);padding-top:6px;}
+.futo-next::before{content:"⚠️ ";}
+.futo-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px;}
+.futo-tag{font-size:9px;padding:2px 7px;border-radius:10px;
+  background:rgba(0,0,0,.1);color:rgba(0,0,0,.55);font-weight:700;}
+
+/* できない理由バッジ */
+.reason-badges{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
+.reason-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;color:#fff;}
+
+/* できない理由選択ボタン */
+.reason-btns{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.reason-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border:2px solid var(--border);border-radius:12px;background:var(--surface);
+  font-family:inherit;font-size:13px;cursor:pointer;text-align:left;
+  transition:all .15s;color:var(--text);width:100%;}
+.reason-btn.on{border-color:transparent;color:#fff;}
+.reason-btn .rb-icon{font-size:18px;flex-shrink:0;}
+.rb-text{display:flex;flex-direction:column;}
+.rb-label{font-weight:700;font-size:12px;}
+.rb-desc{font-size:10px;opacity:.8;margin-top:1px;}
+.reason-custom-wrap{display:flex;gap:6px;align-items:center;margin-top:4px;}
+.reason-custom-wrap input{flex:1;}
+
+/* カードアクションボタン（編集・削除） */
+.futo-actions{display:flex;gap:4px;position:absolute;top:6px;right:6px;}
+.futo-action-btn{background:rgba(0,0,0,.12);border:none;border-radius:50%;
+  width:24px;height:24px;font-size:11px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.55);
+  transition:background .15s;}
+.futo-action-btn:active{background:rgba(0,0,0,.25);}
+
+/* ========== 横断ビュー ========== */
+.kodan-group-card{background:var(--surface);border-radius:16px;margin-bottom:14px;
+  border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.kodan-group-head{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--text);}
+.kodan-group-kw{font-size:14px;font-weight:700;color:#fff;letter-spacing:.02em;}
+.kodan-group-count{font-size:11px;color:#aaa;font-weight:700;}
+
+.kodan-futo-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);gap:0;}
+.kodan-futo-row:last-child{border-bottom:none;}
+.kodan-futo-subj{width:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;}
+.kodan-futo-body{flex:1;padding:10px 10px 10px 12px;}
+.kodan-futo-content{font-size:13px;font-weight:700;line-height:1.55;color:var(--text);}
+.kodan-futo-next{font-size:11px;color:var(--sub);margin-top:5px;line-height:1.4;}
+.kodan-futo-edit{flex-shrink:0;background:none;border:none;font-size:16px;
+  padding:0 10px;cursor:pointer;color:var(--sub);align-self:center;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;
+  display:none;align-items:flex-end;justify-content:center;}
+.modal-bg.on{display:flex;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;
+  padding:20px 16px 36px;width:100%;max-height:92vh;overflow-y:auto;}
+.modal-ttl{font-size:16px;font-weight:700;margin-bottom:16px;text-align:center;}
+.form-label{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:5px;
+  display:block;letter-spacing:.06em;}
+.form-row{margin-bottom:14px;}
+.subj-select-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px;}
+.subj-sel-btn{border:2px solid var(--border);border-radius:8px;padding:7px 4px;
+  font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;
+  background:var(--surface);text-align:center;transition:all .15s;color:var(--text);}
+.subj-sel-btn.on{color:#fff;border-color:transparent;}
+.modal-btns{display:flex;gap:8px;margin-top:8px;}
+.modal-btns .btn{flex:1;justify-content:center;}
+
+/* トースト */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--text);color:#fff;padding:10px 20px;border-radius:24px;
+  font-size:13px;font-weight:700;opacity:0;z-index:600;
+  transition:all .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.empty{text-align:center;padding:36px 16px;color:var(--sub);font-size:13px;line-height:1.9;}
+.mt8{margin-top:8px;} .mt12{margin-top:12px;}
+
+/* ========== 使い方ページ ========== */
+.help-hero{background:var(--text);border-radius:16px;padding:20px 16px;margin-bottom:14px;text-align:center;}
+.help-hero-title{font-family:'Kaisei Decol',serif;font-size:20px;color:#fff;font-weight:700;margin-bottom:6px;}
+.help-hero-sub{font-size:12px;color:#aaa;line-height:1.7;}
+
+.help-section{margin-bottom:14px;}
+.help-section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.help-section-icon{font-size:22px;}
+.help-section-title{font-size:16px;font-weight:700;}
+
+.help-card{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:10px;}
+.help-card-head{padding:12px 14px 10px;border-bottom:1px solid var(--border);
+  font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.help-card-body{padding:12px 14px;}
+.help-card-body p{font-size:13px;line-height:1.8;color:var(--text);margin-bottom:8px;}
+.help-card-body p:last-child{margin-bottom:0;}
+
+/* モック画面 */
+.mock{background:var(--bg);border-radius:12px;border:1.5px solid var(--border);
+  padding:12px;margin:10px 0;font-size:12px;}
+.mock-row{display:flex;align-items:center;gap:8px;padding:7px 0;
+  border-bottom:1px dashed var(--border);}
+.mock-row:last-child{border-bottom:none;}
+.mock-badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;}
+.mock-subj{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.mock-text{font-size:12px;line-height:1.5;flex:1;}
+.mock-days-ok{font-size:11px;color:var(--sub);}
+.mock-days-warn{font-size:11px;color:#e74c3c;font-weight:700;}
+.mock-futo{border-radius:3px 12px 12px 12px;padding:10px;margin:4px 0;
+  font-size:11px;font-weight:700;line-height:1.5;position:relative;}
+.mock-futo-corner{position:absolute;top:0;left:0;width:0;height:0;
+  border-style:solid;border-width:16px 16px 0 0;
+  border-color:rgba(0,0,0,.15) transparent transparent transparent;}
+.mock-futo-subj{font-size:9px;color:rgba(0,0,0,.45);margin-bottom:3px;margin-left:8px;}
+.mock-kodan-head{background:var(--text);border-radius:8px 8px 0 0;padding:8px 10px;
+  font-size:12px;font-weight:700;color:#fff;}
+.mock-kodan-row{display:flex;border-bottom:1px solid var(--border);}
+.mock-kodan-row:last-child{border-bottom:none;}
+.mock-kodan-label{width:38px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;}
+.mock-kodan-content{padding:7px 8px;font-size:11px;line-height:1.5;flex:1;}
+.mock-nav{display:flex;background:var(--text);border-radius:10px;margin-top:10px;overflow:hidden;}
+.mock-nav-btn{flex:1;padding:7px 4px;text-align:center;font-size:9px;color:#888;border:none;background:none;}
+.mock-nav-btn.on{color:var(--roki);}
+
+.help-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.help-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);
+  color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;margin-top:1px;}
+.help-step-body{flex:1;}
+.help-step-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.help-step-desc{font-size:12px;color:var(--sub);line-height:1.7;}
+
+.help-tip{background:#fff8e1;border-radius:10px;padding:10px 12px;
+  border-left:3px solid #f0a83a;margin:8px 0;font-size:12px;line-height:1.7;}
+.help-tip::before{content:"💡 ";font-weight:700;}
+
+.reason-mock{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;}
+.reason-mock-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-title">📚 社労士 学習管理</div>
+  <div>
+    <div class="hdr-days" id="hdrDays">—日</div>
+    <div class="hdr-date">試験まで</div>
+  </div>
+</div>
+
+<!-- ホーム -->
+<div class="page on" id="pageHome">
+  <div class="card">
+    <div class="countdown">
+      <div class="cd-num">あと <span id="cdNum" style="font-size:56px;">—</span> 日</div>
+      <div class="cd-date">2026年8月24日（月）試験</div>
+    </div>
+    <div class="phase-labels">
+      <span>今日</span><span>基礎固め</span><span>横断強化</span><span>総仕上げ</span><span>試験</span>
+    </div>
+    <div class="phasebar" id="phaseBar"></div>
+    <div class="phase-now" id="phaseNow"></div>
+  </div>
+  <div class="card">
+    <div class="card-ttl">📖 やったことをタップ！</div>
+    <div class="subj-grid" id="subjGrid"></div>
+  </div>
+</div>
+
+<!-- 論点カード -->
+<div class="page" id="pageFuto">
+  <div class="filter-row" id="futoFilter"></div>
+  <button class="add-futo-btn" onclick="openFutoModal()">＋ 論点カードを追加</button>
+  <div class="futo-grid" id="futoGrid"></div>
+</div>
+
+<!-- 横断ビュー -->
+<div class="page" id="pageKodan">
+  <div style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7;">
+    🔗 論点カードに「横断キーワード」をつけると、同じキーワードを持つカードが自動でグループになります。
+  </div>
+  <div id="kodanList"></div>
+</div>
+
+<!-- 使い方 -->
+<div class="page" id="pageHelp">
+  <div id="helpContent"></div>
+</div>
+
+<!-- ナビ -->
+<nav class="nav">
+  <button class="nav-btn on" onclick="showPage('Home',this)">
+    <span class="ic">🏠</span>ホーム
+  </button>
+  <button class="nav-btn" onclick="showPage('Futo',this)">
+    <span class="ic">📌</span>論点カード
+  </button>
+  <button class="nav-btn" onclick="showPage('Kodan',this)">
+    <span class="ic">🔗</span>横断
+  </button>
+  <button class="nav-btn" onclick="showPage('Help',this)">
+    <span class="ic">📖</span>使い方
+  </button>
+</nav>
+
+<!-- モーダル: 論点カード追加/編集 -->
+<div class="modal-bg" id="modalFuto">
+  <div class="modal">
+    <div class="modal-ttl" id="futoModalTtl">📌 論点カードを追加</div>
+    <div class="form-row">
+      <label class="form-label">科目</label>
+      <div class="subj-select-grid" id="modalSubjGrid"></div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">論点・苦手ポイント</label>
+      <textarea class="inp" id="futoContent" rows="3" placeholder="例：傷病手当金の支給期間の起算日"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">⚠️ 間違えた理由・引っかけポイント</label>
+      <textarea class="inp" id="futoNext" rows="2" placeholder="例：支給開始日を「翌日」と覚えていた／〇〇と混同しがち"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">😓 できない理由（複数選択OK）</label>
+      <div class="reason-btns" id="reasonBtns"></div>
+      <div class="reason-custom-wrap">
+        <input class="inp" id="reasonCustom" type="text" placeholder="その他（自由記入）">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">🔗 横断キーワード（カンマ区切り）</label>
+      <input class="inp" id="futoKeywords" type="text" placeholder="例：待期、時効、届出先">
+      <div style="font-size:11px;color:var(--sub);margin-top:5px;">同じキーワードのカードが横断タブで自動グループ化されます</div>
+    </div>
+    <div id="futoDeleteRow" style="display:none;margin-bottom:8px;">
+      <button class="btn btn-danger" style="width:100%;justify-content:center;" onclick="deleteFutoFromModal()">🗑️ このカードを削除</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeFutoModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveFuto()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUBJECTS = [
+  {id:'roki',   name:'労基', color:'#f28b82'},
+  {id:'anei',   name:'安衛', color:'#f6ae5c'},
+  {id:'rosai',  name:'労災', color:'#5dbf85'},
+  {id:'koyo',   name:'雇用', color:'#42b0d8'},
+  {id:'choshu', name:'徴収', color:'#9b72d0'},
+  {id:'kenpo',  name:'健保', color:'#f07ba8'},
+  {id:'konen',  name:'厚年', color:'#3ec9bc'},
+  {id:'kokunen',name:'国年', color:'#f0a83a'},
+  {id:'rouichi',name:'労一', color:'#b05ec0'},
+  {id:'shaichi',name:'社一', color:'#5aaee8'},
+];
+
+const REASONS = [
+  {id:'r1', icon:'😶', label:'覚えてない',       desc:'そもそも知識が定着していない',    color:'#e8908a'},
+  {id:'r2', icon:'🔢', label:'数字で引っかかった', desc:'日数・金額・割合などの数字ミス',  color:'#e8a97a'},
+  {id:'r3', icon:'🔀', label:'他科目と混同',      desc:'似た制度・用語と混同してしまった', color:'#a98fd4'},
+  {id:'r4', icon:'🤯', label:'理解が足りない',    desc:'仕組み・理屈がわかっていない',    color:'#7aaed4'},
+  {id:'r5', icon:'📢', label:'法改正ポイント',    desc:'改正前の内容で覚えていた',        color:'#6dbf8a'},
+  {id:'r6', icon:'😅', label:'うっかり忘れてた',  desc:'知ってるのに本番で出てこなかった', color:'#c4a87a'},
+];
+const EXAM_DATE = new Date('2026-08-24T09:00:00');
+
+let state = {
+  studyLog: {},
+  futoCards: [],   // [{id,subjId,content,next,tags,order}]
+  kodanCards: [],  // [{id,theme,rows:[{subjId,content}]}]
+};
+
+function loadState(){
+  const s = localStorage.getItem('sharoshi_v4');
+  if(s){ try{ state={...state,...JSON.parse(s)}; }catch(e){} }
+}
+function saveState(){ localStorage.setItem('sharoshi_v4',JSON.stringify(state)); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function daysAgo(d){ if(!d)return null; const a=new Date(d),b=new Date(); a.setHours(0,0,0,0);b.setHours(0,0,0,0); return Math.floor((b-a)/86400000); }
+function daysLeft(){ const n=new Date(),e=new Date(EXAM_DATE); n.setHours(0,0,0,0);e.setHours(0,0,0,0); return Math.max(0,Math.floor((e-n)/86400000)); }
+function subjById(id){ return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0]; }
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function showToast(msg){ const e=document.getElementById('toast'); e.textContent=msg; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'),2200); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// ========== ナビ ==========
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='Futo') renderFuto();
+  if(name==='Kodan') renderKodan();
+  if(name==='Help') renderHelp();
+}
+
+// ========== 使い方ページ ==========
+function renderHelp(){
+  document.getElementById('helpContent').innerHTML=`
+  <div class="help-hero">
+    <div class="help-hero-title">📚 使い方ガイド</div>
+    <div class="help-hero-sub">このアプリは3つのタブで構成されています。<br>論点カードを育てながら、8月の試験に向けて<br>苦手を確実に潰していきましょう！</div>
+  </div>
+
+  <!-- 全体像 -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🗺️</div>
+      <div class="help-section-title">全体の使い方イメージ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <div class="help-step-body">
+            <div class="help-step-title">勉強したらホームで記録</div>
+            <div class="help-step-desc">科目ボタンをタップするだけ。何日放置しているかが見えます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <div class="help-step-body">
+            <div class="help-step-title">間違えたら論点カードに追加</div>
+            <div class="help-step-desc">「なぜ間違えたか」「引っかけポイント」を付箋感覚でペタっと。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <div class="help-step-body">
+            <div class="help-step-title">横断論点に気づいたらキーワードを追加</div>
+            <div class="help-step-desc">「あ、これ他の科目でも出てくる！」と思ったら横断キーワードを入力。横断タブで自動グループ化されます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">4</div>
+          <div class="help-step-body">
+            <div class="help-step-title">試験直前にこのアプリで総復習</div>
+            <div class="help-step-desc">集まった論点カード＝自分だけの弱点集。8月にここを見返せばOK！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ホーム -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🏠</div>
+      <div class="help-section-title">ホームタブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📅 試験までのカウントダウン</div>
+      <div class="help-card-body">
+        <div class="mock" style="text-align:center;padding:16px;">
+          <div style="font-size:48px;font-weight:900;color:var(--accent);line-height:1;font-family:'Kaisei Decol',serif;">141</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:4px;">日後が試験日</div>
+          <div style="font-size:10px;color:#ccc;margin-top:4px;">2026年8月24日（月）</div>
+          <div style="margin-top:10px;">
+            <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;background:#eee;">
+              <div style="width:50%;background:#5dbf85;"></div>
+              <div style="width:35%;background:#42b0d8;"></div>
+              <div style="width:15%;background:#d44d28;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--sub);margin-top:4px;display:flex;justify-content:space-between;">
+              <span>基礎固め</span><span>横断強化</span><span>総仕上げ</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--accent);font-weight:700;margin-top:8px;">📗 今は「基礎固め」フェーズ</div>
+        </div>
+        <p>試験まであと何日かが一目でわかります。フェーズバーは「基礎固め→横断強化→総仕上げ」の3段階で、今どのフェーズかを表示します。</p>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📖 やったことをタップ！</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:#f28b8222;border:2px solid #f28b82;border-radius:10px;padding:10px 8px;">
+              <div style="font-size:13px;font-weight:700;color:rgba(0,0,0,.7);margin-bottom:6px;">労基</div>
+              <div style="background:rgba(255,255,255,.8);border-radius:7px;padding:5px 7px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:700;">📖 テキスト ✓</span>
+                <span style="font-size:10px;color:var(--sub);">読んだ！</span>
+              </div>
+              <div style="background:rgba(255,255,255,.5);border-radius:7px;padding:5px 7px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:700;">✏️ 問題</span>
+                <span style="font-size:10px;color:var(--sub);">3日前</span>
+              </div>
+            </div>
+            <div style="background:#9b72d022;border:2px solid transparent;border-radius:10px;padding:10px 8px;">
+              <div style="font-size:13px;font-weight:700;color:rgba(0,0,0,.7);margin-bottom:6px;">徴収</div>
+              <div style="background:rgba(255,255,255,.5);border-radius:7px;padding:5px 7px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:700;">📖 テキスト</span>
+                <span style="font-size:10px;color:#e74c3c;font-weight:700;">8日 放置…</span>
+              </div>
+              <div style="background:rgba(255,255,255,.5);border-radius:7px;padding:5px 7px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:700;">✏️ 問題</span>
+                <span style="font-size:10px;color:#e74c3c;font-weight:700;">10日 放置…</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p>10科目それぞれに「📖 テキスト」「✏️ 問題」の2つのボタンがあります。<strong>やったほうをタップするだけで記録</strong>されます。もう一度タップすると取り消せます。</p>
+        <p>ボタンの右側に最後にやった日からの日数が表示されます。<strong>7日以上さわっていないと赤字で「放置…」</strong>と表示されるので、どの科目・どの学習が疎かになっているか一目でわかります。</p>
+        <div class="help-tip">テキストと問題で別々に記録できるので、「テキストは読んだけど問題はまだ」という状態も把握できます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 論点カード -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">📌</div>
+      <div class="help-section-title">論点カードタブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📌 付箋スタイルで論点を記録</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="mock-futo" style="background:#f07ba833;">
+              <div class="mock-futo-corner"></div>
+              <div class="mock-futo-subj">健保</div>
+              <div>傷病手当金の支給期間<br>支給開始日から通算1年6ヶ月</div>
+              <div style="font-size:10px;margin-top:6px;border-top:1px solid rgba(0,0,0,.1);padding-top:5px;color:rgba(0,0,0,.5);">⚠️「初診日から」は✕！起算点に注意</div>
+              <div style="margin-top:5px;display:flex;gap:3px;">
+                <span style="background:#e74c3c;color:#fff;font-size:9px;padding:2px 6px;border-radius:8px;">😶 覚えてない</span>
+              </div>
+            </div>
+            <div class="mock-futo" style="background:#5dbf8533;">
+              <div class="mock-futo-corner"></div>
+              <div class="mock-futo-subj">労災</div>
+              <div>休業補償給付の待期<br>3日間（事業主が補償）</div>
+              <div style="font-size:10px;margin-top:6px;border-top:1px solid rgba(0,0,0,.1);padding-top:5px;color:rgba(0,0,0,.5);">⚠️ 雇用の7日と混同！</div>
+              <div style="margin-top:5px;">
+                <span style="background:#8e44ad;color:#fff;font-size:9px;padding:2px 6px;border-radius:8px;">🔀 他科目と混同</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p>間違えた論点を付箋スタイルで記録します。科目ごとに色が違うので、パッと見てどの科目かわかります。</p>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">➕ カードの追加方法</div>
+      <div class="help-card-body">
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <div class="help-step-body">
+            <div class="help-step-title">「＋ 論点カードを追加」をタップ</div>
+            <div class="help-step-desc">画面上部のボタンをタップすると入力画面が下から出てきます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <div class="help-step-body">
+            <div class="help-step-title">科目を選ぶ</div>
+            <div class="help-step-desc">労基・安衛・労災・雇用・徴収・健保・厚年・国年・労一・社一の10科目から選択。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <div class="help-step-body">
+            <div class="help-step-title">論点・引っかけポイントを入力</div>
+            <div class="help-step-desc">「傷病手当金の支給期間」など論点名と、「10日→✕ 支給開始日から起算」のような引っかけポイントを書きます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">4</div>
+          <div class="help-step-body">
+            <div class="help-step-title">できない理由を選ぶ</div>
+            <div class="help-step-desc">4つのボタンから選択（複数OK）。</div>
+          </div>
+        </div>
+        <div class="reason-mock">
+          <span class="reason-mock-badge" style="background:#e8908a;">😶 覚えてない</span>
+          <span class="reason-mock-badge" style="background:#e8a97a;">🔢 数字で引っかかった</span>
+          <span class="reason-mock-badge" style="background:#a98fd4;">🔀 他科目と混同</span>
+          <span class="reason-mock-badge" style="background:#7aaed4;">🤯 理解が足りない</span>
+          <span class="reason-mock-badge" style="background:#6dbf8a;">📢 法改正ポイント</span>
+          <span class="reason-mock-badge" style="background:#c4a87a;">😅 うっかり忘れてた</span>
+        </div>
+        <div class="help-step" style="margin-top:10px;">
+          <div class="help-step-num">5</div>
+          <div class="help-step-body">
+            <div class="help-step-title">横断キーワードを入力（任意）</div>
+            <div class="help-step-desc">「待期」「時効」など他の科目にも出てくるキーワードを入れると、横断タブで自動グループ化されます。</div>
+          </div>
+        </div>
+        <div class="help-tip">後からでも✏️ボタンで編集できます。まずはサクッと追加してOK！</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">🔍 絞り込みフィルター</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;">
+            <span style="padding:4px 12px;background:var(--text);color:#fff;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">📋 すべて</span>
+            <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">😶 覚えてない</span>
+            <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🔢 数字</span>
+            <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🔀 混同</span>
+          </div>
+        </div>
+        <p>科目フィルター（横スクロール）でカードを絞り込めます。さらに「できない理由」でも絞り込めるので、「数字系の引っかけだけ見る」などの使い方ができます。</p>
+        <p>カードは長押しでドラッグして並び替えができます。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 横断タブ -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🔗</div>
+      <div class="help-section-title">横断タブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">🔗 キーワードで自動グループ化</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div class="mock-kodan-head">🔗 待期　<span style="font-size:10px;color:#aaa;">3科目</span></div>
+          <div style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;">
+            <div class="mock-kodan-row">
+              <div class="mock-kodan-label" style="background:#5dbf85;min-height:52px;">労災</div>
+              <div class="mock-kodan-content">3日間<br>待期中は事業主が休業補償</div>
+            </div>
+            <div class="mock-kodan-row">
+              <div class="mock-kodan-label" style="background:#42b0d8;min-height:52px;">雇用</div>
+              <div class="mock-kodan-content">7日間<br>自己都合は給付制限+2ヶ月</div>
+            </div>
+            <div class="mock-kodan-row" style="border-bottom:none;">
+              <div class="mock-kodan-label" style="background:#f07ba8;min-height:52px;">健保</div>
+              <div class="mock-kodan-content">3日間（連続3日が必要）<br>4日目から支給</div>
+            </div>
+          </div>
+        </div>
+        <p>論点カードに同じ横断キーワードをつけると、このタブで自動的にグループとして並びます。</p>
+        <p>「労災は3日・雇用は7日・健保は3日」のように科目ごとの違いが縦に並ぶので、<strong>混同しやすい論点を一気に比較</strong>できます。</p>
+        <div class="help-tip">横断タブは論点カードを育てるほど充実します。勉強しながら「あ、これ他でもあった！」と気づいたらキーワードを追加してみてください。</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">✏️ 横断タブからカードを編集</div>
+      <div class="help-card-body">
+        <p>各行の右端の✏️ボタンをタップすると、その論点カードを直接編集できます。横断タブを見ながら「あ、この書き方わかりにくいな」と思ったらその場で修正OK。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- データの保存 -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">💾</div>
+      <div class="help-section-title">データの保存について</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <p>入力したデータはすべて<strong>このブラウザ（スマホ）に自動保存</strong>されます。次に開いたときも続きから使えます。</p>
+        <p>ただし、以下の場合はデータが消えることがあります：</p>
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9;color:var(--sub);">
+          ・ブラウザの「閲覧データを消去」をした場合<br>
+          ・別のブラウザやデバイスからは見られない<br>
+          ・プライベートブラウズモードでは保存されない
+        </div>
+        <div class="help-tip">同じスマホの同じブラウザで開くのがおすすめです。</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:20px;"></div>
+  `;
+}
+
+// ========== ヘッダー・フェーズ ==========
+function renderHeader(){
+  const d=daysLeft();
+  const el=document.getElementById('cdNum');
+  if(el) el.textContent=d;
+  document.getElementById('hdrDays').textContent=d+'日';
+}
+function renderPhaseBar(){
+  const d=daysLeft(), total=140;
+  const phases=[
+    {name:'基礎固め',days:Math.max(0,d-70),color:'#5dbf85'},
+    {name:'横断強化',days:Math.max(0,Math.min(d,70)-28),color:'#42b0d8'},
+    {name:'総仕上げ',days:Math.min(d,28),color:'#d44d28'},
+  ];
+  document.getElementById('phaseBar').innerHTML=phases.map(p=>{
+    const w=Math.round(p.days/total*100);
+    return `<div class="ps" style="width:${w}%;background:${p.color};">${w>10?p.name:''}</div>`;
+  }).join('');
+  const n=document.getElementById('phaseNow');
+  if(d>70) n.textContent='📗 今は「基礎固め」フェーズ';
+  else if(d>28) n.textContent='📘 今は「横断強化」フェーズ';
+  else if(d>0) n.textContent='🔥 今は「総仕上げ」フェーズ！';
+  else n.textContent='🎌 試験日！';
+}
+
+// ========== 科目ボタン ==========
+// studyLog構造: {subjId: {text:'2025-04-05', prob:'2025-04-03'}}
+function getLog(subjId, type){
+  return (state.studyLog[subjId]||{})[type]||null;
+}
+function daysAgoLabel(dateStr){
+  const ago=daysAgo(dateStr);
+  if(ago===null) return {txt:'－',cls:''};
+  if(ago===0) return {txt:'今日！',cls:'ok'};
+  if(ago===1) return {txt:'昨日',cls:'ok'};
+  if(ago>=7) return {txt:ago+'日 放置…',cls:'warn'};
+  return {txt:ago+'日前',cls:'ok'};
+}
+
+function renderSubjGrid(){
+  document.getElementById('subjGrid').innerHTML=SUBJECTS.map(s=>{
+    const tDate=getLog(s.id,'text'), pDate=getLog(s.id,'prob');
+    const tL=daysAgoLabel(tDate), pL=daysAgoLabel(pDate);
+    const anyToday=tDate===today()||pDate===today();
+    return `<div class="subj-card" style="background:${s.color}22;border-color:${anyToday?s.color:'transparent'};">
+      <div class="subj-card-name">${s.name}</div>
+      <div class="subj-act-row">
+        <button class="subj-act-btn${tDate===today()?' done':''}" onclick="studyLog('${s.id}','text',this)">
+          <span class="subj-act-label">📖 テキスト${tDate===today()?' <span class="subj-act-check">✓</span>':''}</span>
+          <span class="subj-act-days ${tL.cls}">${tDate===today()?'読んだ！':tL.txt}</span>
+        </button>
+        <button class="subj-act-btn${pDate===today()?' done':''}" onclick="studyLog('${s.id}','prob',this)">
+          <span class="subj-act-label">✏️ 問題${pDate===today()?' <span class="subj-act-check">✓</span>':''}</span>
+          <span class="subj-act-days ${pL.cls}">${pDate===today()?'解いた！':pL.txt}</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function studyLog(subjId, type, btn){
+  if(!state.studyLog[subjId]) state.studyLog[subjId]={};
+  const wasToday = state.studyLog[subjId][type]===today();
+  if(wasToday){
+    delete state.studyLog[subjId][type];
+    showToast('記録を取り消しました');
+  } else {
+    state.studyLog[subjId][type]=today();
+    btn.classList.add('done');
+    showToast(subjById(subjId).name+(type==='text'?' テキスト読んだ！📖':' 問題解いた！✏️'));
+  }
+  saveState(); renderSubjGrid();
+}
+
+// ========== 論点カード ==========
+let futoFilter='all';
+let futoReasonFilter='all';
+let editingFutoId=null;
+let selectedSubjForFuto=SUBJECTS[0].id;
+let selectedReasons=[];
+
+function renderFutoFilter(){
+  // 科目フィルター
+  const all=[{id:'all',name:'すべて',color:'#888'},...SUBJECTS];
+  document.getElementById('futoFilter').innerHTML=all.map(s=>{
+    const on=futoFilter===s.id;
+    return `<button class="chip${on?' on':''}" style="${on?`background:${s.color};`:''}" onclick="setFutoFilter('${s.id}')">${s.name}</button>`;
+  }).join('');
+  // 理由フィルター
+  const reasonAll=[{id:'all',icon:'📋',label:'すべて',color:'#888'},...REASONS];
+  let r2=document.getElementById('futoFilter2');
+  if(!r2){ r2=document.createElement('div'); r2.id='futoFilter2'; r2.className='filter-row'; document.getElementById('futoFilter').after(r2); }
+  r2.innerHTML=reasonAll.map(r=>{
+    const on=futoReasonFilter===r.id;
+    return `<button class="chip${on?' on':''}" style="${on?`background:${r.color};`:''}" onclick="setFutoReasonFilter('${r.id}')">${r.icon} ${r.label}</button>`;
+  }).join('');
+}
+function setFutoFilter(id){ futoFilter=id; renderFutoFilter(); renderFutoCards(); }
+function setFutoReasonFilter(id){ futoReasonFilter=id; renderFutoFilter(); renderFutoCards(); }
+
+function renderFutoCards(){
+  const grid=document.getElementById('futoGrid');
+  let cards=[...state.futoCards];
+  if(futoFilter!=='all') cards=cards.filter(c=>c.subjId===futoFilter);
+  if(futoReasonFilter!=='all') cards=cards.filter(c=>(c.reasons||[]).includes(futoReasonFilter));
+  if(!cards.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1">まだ論点カードがありません。<br>＋ボタンで追加してみよう！</div>';
+    return;
+  }
+  grid.innerHTML=cards.map(c=>{
+    const s=subjById(c.subjId);
+    const reasonBadges=(c.reasons||[]).map(rid=>{
+      const r=REASONS.find(x=>x.id===rid);
+      return r?`<span class="reason-badge" style="background:${r.color};">${r.icon} ${r.label}</span>`:'';
+    }).join('');
+    const customBadge=c.reasonCustom?`<span class="reason-badge" style="background:#555;">✏️ ${escHtml(c.reasonCustom)}</span>`:'';
+    return `<div class="futo-card" id="fc_${c.id}"
+      style="background:${s.color}33;"
+      draggable="true"
+      ondragstart="dragStart(event,'${c.id}')"
+      ondragover="dragOver(event,'${c.id}')"
+      ondrop="dragDrop(event,'${c.id}')"
+      ondragend="dragEnd(event)">
+      <div class="futo-corner"></div>
+      <div class="futo-actions">
+        <button class="futo-action-btn" onclick="openFutoModal('${c.id}')">✏️</button>
+        <button class="futo-action-btn" onclick="deleteFuto('${c.id}')">✕</button>
+      </div>
+      <div class="futo-subj">${s.name}</div>
+      <div class="futo-body">${escHtml(c.content)}</div>
+      ${c.next?`<div class="futo-next">${escHtml(c.next)}</div>`:''}
+      ${(reasonBadges||customBadge)?`<div class="reason-badges">${reasonBadges}${customBadge}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function renderFuto(){ renderFutoFilter(); renderFutoCards(); }
+
+// ドラッグ&ドロップ
+let dragId=null;
+function dragStart(e,id){ dragId=id; document.getElementById('fc_'+id).classList.add('dragging'); }
+function dragOver(e,id){ e.preventDefault(); if(id!==dragId){ document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('drag-over')); document.getElementById('fc_'+id)?.classList.add('drag-over'); } }
+function dragDrop(e,targetId){
+  e.preventDefault();
+  if(!dragId||dragId===targetId)return;
+  const cards=state.futoCards;
+  const fromIdx=cards.findIndex(c=>c.id===dragId);
+  const toIdx=cards.findIndex(c=>c.id===targetId);
+  if(fromIdx<0||toIdx<0)return;
+  const [moved]=cards.splice(fromIdx,1);
+  cards.splice(toIdx,0,moved);
+  saveState(); renderFutoCards();
+}
+function dragEnd(e){ dragId=null; document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('dragging','drag-over')); }
+
+// 論点モーダル
+function openFutoModal(editId){
+  editingFutoId=editId||null;
+  const isEdit=!!editId;
+  document.getElementById('futoModalTtl').textContent=isEdit?'✏️ 論点カードを編集':'📌 論点カードを追加';
+  document.getElementById('futoDeleteRow').style.display=isEdit?'block':'none';
+  if(isEdit){
+    const c=state.futoCards.find(x=>x.id===editId);
+    if(!c)return;
+    selectedSubjForFuto=c.subjId;
+    selectedReasons=[...(c.reasons||[])];
+    document.getElementById('futoContent').value=c.content||'';
+    document.getElementById('futoNext').value=c.next||'';
+    document.getElementById('reasonCustom').value=c.reasonCustom||'';
+    document.getElementById('futoKeywords').value=(c.keywords||[]).join('、');
+  } else {
+    selectedSubjForFuto=SUBJECTS[0].id;
+    selectedReasons=[];
+    document.getElementById('futoContent').value='';
+    document.getElementById('futoNext').value='';
+    document.getElementById('reasonCustom').value='';
+    document.getElementById('futoKeywords').value='';
+  }
+  renderModalSubjGrid();
+  renderReasonBtns();
+  document.getElementById('modalFuto').classList.add('on');
+}
+function closeFutoModal(){ document.getElementById('modalFuto').classList.remove('on'); }
+document.getElementById('modalFuto').addEventListener('click',function(e){ if(e.target===this)closeFutoModal(); });
+
+function renderReasonBtns(){
+  document.getElementById('reasonBtns').innerHTML=REASONS.map(r=>{
+    const on=selectedReasons.includes(r.id);
+    return `<button class="reason-btn${on?' on':''}"
+      style="${on?`background:${r.color};border-color:${r.color};`:''}"
+      onclick="toggleReason('${r.id}')">
+      <span class="rb-icon">${r.icon}</span>
+      <div class="rb-text">
+        <div class="rb-label">${r.label}</div>
+        <div class="rb-desc">${r.desc}</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+function toggleReason(id){
+  const idx=selectedReasons.indexOf(id);
+  if(idx>=0) selectedReasons.splice(idx,1);
+  else selectedReasons.push(id);
+  renderReasonBtns();
+}
+
+function renderModalSubjGrid(){
+  document.getElementById('modalSubjGrid').innerHTML=SUBJECTS.map(s=>{
+    const on=selectedSubjForFuto===s.id;
+    return `<button class="subj-sel-btn${on?' on':''}" style="${on?`background:${s.color};color:#fff;border-color:${s.color};`:''}" onclick="selectSubjForFuto('${s.id}')">${s.name}</button>`;
+  }).join('');
+}
+function selectSubjForFuto(id){ selectedSubjForFuto=id; renderModalSubjGrid(); }
+
+function saveFuto(){
+  const content=document.getElementById('futoContent').value.trim();
+  if(!content){ showToast('論点を入力してください'); return; }
+  const reasonCustom=document.getElementById('reasonCustom').value.trim();
+  const keywords=document.getElementById('futoKeywords').value
+    .split(/[,，、\s]+/).map(t=>t.trim()).filter(Boolean);
+  if(editingFutoId){
+    const c=state.futoCards.find(x=>x.id===editingFutoId);
+    if(c){ c.subjId=selectedSubjForFuto; c.content=content; c.next=document.getElementById('futoNext').value.trim(); c.reasons=[...selectedReasons]; c.reasonCustom=reasonCustom; c.keywords=keywords; }
+    showToast('論点カードを更新しました✏️');
+  } else {
+    state.futoCards.push({id:uid(),subjId:selectedSubjForFuto,content,next:document.getElementById('futoNext').value.trim(),reasons:[...selectedReasons],reasonCustom,keywords});
+    showToast('論点カードを追加しました📌');
+  }
+  saveState(); closeFutoModal(); renderFuto();
+}
+function deleteFuto(id){
+  if(!confirm('このカードを削除しますか？'))return;
+  state.futoCards=state.futoCards.filter(c=>c.id!==id);
+  saveState(); renderFutoCards(); showToast('削除しました');
+}
+function deleteFutoFromModal(){
+  if(!editingFutoId||!confirm('このカードを削除しますか？'))return;
+  state.futoCards=state.futoCards.filter(c=>c.id!==editingFutoId);
+  saveState(); closeFutoModal(); renderFuto(); showToast('削除しました');
+}
+
+// ========== 横断ビュー（自動グループ化） ==========
+function renderKodan(){
+  const el=document.getElementById('kodanList');
+
+  // キーワードを持つカードを収集してグループ化
+  const groupMap={}; // keyword -> [card, ...]
+  state.futoCards.forEach(c=>{
+    (c.keywords||[]).forEach(kw=>{
+      if(!groupMap[kw]) groupMap[kw]=[];
+      groupMap[kw].push(c);
+    });
+  });
+
+  const groups=Object.entries(groupMap).filter(([,cards])=>cards.length>0);
+
+  if(!groups.length){
+    el.innerHTML='<div class="empty">まだ横断グループがありません。<br>論点カードに「横断キーワード」を入れると<br>自動でここにグループが現れます！</div>';
+    return;
+  }
+
+  el.innerHTML=groups.map(([kw, cards])=>{
+    // カードを科目順に並べる
+    const sorted=[...cards].sort((a,b)=>
+      SUBJECTS.findIndex(s=>s.id===a.subjId) - SUBJECTS.findIndex(s=>s.id===b.subjId)
+    );
+    const cardHtml=sorted.map(c=>{
+      const s=subjById(c.subjId);
+      const reasonBadges=(c.reasons||[]).map(rid=>{
+        const r=REASONS.find(x=>x.id===rid);
+        return r?`<span class="reason-badge" style="background:${r.color};font-size:9px;">${r.icon}</span>`:'';
+      }).join('');
+      return `<div class="kodan-futo-row">
+        <div class="kodan-futo-subj" style="background:${s.color};">${s.name}</div>
+        <div class="kodan-futo-body">
+          <div class="kodan-futo-content">${escHtml(c.content)}</div>
+          ${c.next?`<div class="kodan-futo-next">⚠️ ${escHtml(c.next)}</div>`:''}
+          ${reasonBadges?`<div style="margin-top:4px;">${reasonBadges}</div>`:''}
+        </div>
+        <button class="kodan-futo-edit" onclick="openFutoModal('${c.id}')">✏️</button>
+      </div>`;
+    }).join('');
+
+    return `<div class="kodan-group-card">
+      <div class="kodan-group-head">
+        <div class="kodan-group-kw">🔗 ${escHtml(kw)}</div>
+        <div class="kodan-group-count">${cards.length}科目</div>
+      </div>
+      <div class="kodan-group-cards">${cardHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== ダミーデータ ==========
+function injectDummy(){
+  const daysBack=n=>{ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
+  state.studyLog={
+    roki:   {text:today(),    prob:daysBack(2)},
+    anei:   {text:daysBack(1),prob:daysBack(5)},
+    rosai:  {text:daysBack(3),prob:daysBack(3)},
+    koyo:   {text:today(),    prob:today()},
+    choshu: {text:daysBack(8),prob:daysBack(10)},
+    kenpo:  {text:daysBack(2),prob:daysBack(1)},
+    konen:  {text:daysBack(5),prob:daysBack(7)},
+    kokunen:{text:daysBack(12),prob:daysBack(14)},
+    rouichi:{text:daysBack(1),prob:daysBack(4)},
+    shaichi:{text:daysBack(4),prob:daysBack(6)},
+  };
+  state.futoCards=[
+    {id:'f1',subjId:'kenpo',content:'傷病手当金の支給期間\n支給開始日から通算1年6ヶ月',next:'「支給開始日」を「初診日」と覚えていた。10日→✕、起算点がずれると全部ズレる',reasons:['r1','r2'],reasonCustom:'',keywords:['待期']},
+    {id:'f2',subjId:'rosai',content:'休業補償給付の待期期間\n3日間（労基法の休業補償あり）',next:'雇用保険の7日と混同。待期中に補償があるかどうかも違う',reasons:['r3'],reasonCustom:'',keywords:['待期']},
+    {id:'f3',subjId:'koyo',content:'基本手当の待期期間\n7日間（給付制限とは別）',next:'待期7日と給付制限2ヶ月を混同した',reasons:['r1','r3'],reasonCustom:'',keywords:['待期']},
+    {id:'f4',subjId:'choshu',content:'概算保険料の申告・納付期限\n保険関係成立日の翌日から50日以内',next:'「成立日から」ではなく「翌日から」！40日→✕、50日が正解',reasons:['r1','r2'],reasonCustom:'',keywords:['資格取得の申請期限']},
+    {id:'f5',subjId:'konen',content:'老齢厚生年金の繰下げ上限\n75歳まで（令和4年改正）\n増額率 0.7%×月数',next:'改正前の70歳→✕で覚えていた。国年も75歳だが混同注意',reasons:['r1'],reasonCustom:'改正論点は要注意',keywords:[]},
+    {id:'f6',subjId:'kokunen',content:'老齢基礎年金の繰下げ上限\n75歳まで（令和4年改正）\n増額率 0.7%×月数',next:'厚年と同じ上限・増額率。改正前は70歳',reasons:['r3'],reasonCustom:'',keywords:[]},
+    // 遺族年金の支給対象者
+    {id:'f9',subjId:'kokunen',content:'遺族基礎年金の支給対象者\n①子のある配偶者\n②子\n※「子」＝18歳到達年度末までor障害1・2級',next:'「子のない配偶者」には支給されない！ここが厚年との大きな違い',reasons:['r1','r3'],reasonCustom:'',keywords:['遺族年金の支給対象者']},
+    {id:'f10',subjId:'konen',content:'遺族厚生年金の支給対象者\n配偶者・子・父母・孫・祖父母\n（優先順位あり）\n※子のない妻も対象！',next:'国年と違い子のない配偶者にも支給される。父母・孫・祖父母まで範囲が広い',reasons:['r3'],reasonCustom:'',keywords:['遺族年金の支給対象者']},
+    {id:'f11',subjId:'rosai',content:'遺族補償年金の支給対象者\n配偶者・子・父母・孫・祖父母・兄弟姉妹\n（優先順位あり）\n※労災は兄弟姉妹まで含む！',next:'厚年より範囲が広く兄弟姉妹まで含む。順位を混同しやすい',reasons:['r1','r3'],reasonCustom:'',keywords:['遺族年金の支給対象者']},
+    // 資格取得の申請期限
+    {id:'f12',subjId:'koyo',content:'雇用保険 被保険者資格取得届\n提出期限：翌月10日まで\n提出先：所轄公共職業安定所',next:'健保の5日以内と混同しやすい。雇用は「翌月10日」',reasons:['r1','r3'],reasonCustom:'',keywords:['資格取得の申請期限']},
+    {id:'f13',subjId:'kenpo',content:'健康保険 被保険者資格取得届\n提出期限：資格取得日から5日以内\n提出先：日本年金機構（事務センター）',next:'雇用の翌月10日と混同した。健保・厚年は「5日以内」',reasons:['r1','r3'],reasonCustom:'',keywords:['資格取得の申請期限']},
+  ];
+  state.kodanCards=[];
+  saveState();
+}
+
+// ========== 初期化 ==========
+loadState();
+// 常にダミーデータで studyLog・futoCards・kodanCards を上書き（開発用）
+injectDummy();
+renderHeader();
+renderPhaseBar();
+renderSubjGrid();
+setInterval(()=>{ renderHeader(); renderPhaseBar(); },60000);
+</script>
+</body>
+</html>
