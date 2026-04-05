@@ -684,6 +684,25 @@ function renderHelp(){
   </div>
 
   <div style="height:20px;"></div>
+
+  <!-- リセット -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🗑️</div>
+      <div class="help-section-title">データのリセット</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <p>論点カードや学習記録をすべて削除して最初からやり直したい場合はこちら。</p>
+        <p style="color:#e74c3c;font-size:12px;margin-top:4px;">⚠️ 削除したデータは元に戻せません。</p>
+        <button onclick="resetAllData()" style="margin-top:12px;width:100%;padding:12px;background:none;border:2px solid #e74c3c;border-radius:12px;color:#e74c3c;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">
+          🗑️ すべてのデータをリセットする
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:20px;"></div>
   `;
 }
 
@@ -1013,10 +1032,21 @@ function injectDummy(){
   saveState();
 }
 
+function resetAllData(){
+  if(!confirm('すべてのデータを削除して最初からやり直しますか？\nこの操作は元に戻せません。')) return;
+  localStorage.removeItem('sharoshi_v4');
+  state={ studyLog:{}, futoCards:[], kodanCards:[] };
+  saveState();
+  renderSubjGrid();
+  renderHeader();
+  renderPhaseBar();
+  showToast('データをリセットしました');
+  showPage('Home', document.querySelector('.nav-btn'));
+}
+
 // ========== 初期化 ==========
 loadState();
-// 常にダミーデータで studyLog・futoCards・kodanCards を上書き（開発用）
-injectDummy();
+if(!state.studyLog||Object.keys(state.studyLog).length===0) injectDummy();
 renderHeader();
 renderPhaseBar();
 renderSubjGrid();
