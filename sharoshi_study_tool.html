@@ -828,7 +828,10 @@ function renderFutoCards(){
       ondragstart="dragStart(event,'${c.id}')"
       ondragover="dragOver(event,'${c.id}')"
       ondrop="dragDrop(event,'${c.id}')"
-      ondragend="dragEnd(event)">
+      ondragend="dragEnd(event)"
+      ontouchstart="touchStart(event,'${c.id}')"
+      ontouchmove="touchMove(event)"
+      ontouchend="touchEnd(event)">
       <div class="futo-corner"></div>
       <div class="futo-actions">
         <button class="futo-action-btn" onclick="openFutoModal('${c.id}')">✏️</button>
@@ -843,8 +846,13 @@ function renderFutoCards(){
 }
 function renderFuto(){ renderFutoFilter(); renderFutoCards(); }
 
-// ドラッグ&ドロップ
+// ドラッグ&ドロップ（PC・スマホ両対応）
 let dragId=null;
+let touchDragEl=null;
+let touchClone=null;
+let touchTimer=null;
+let touchDragging=false;
+
 function dragStart(e,id){ dragId=id; document.getElementById('fc_'+id).classList.add('dragging'); }
 function dragOver(e,id){ e.preventDefault(); if(id!==dragId){ document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('drag-over')); document.getElementById('fc_'+id)?.classList.add('drag-over'); } }
 function dragDrop(e,targetId){
@@ -859,6 +867,69 @@ function dragDrop(e,targetId){
   saveState(); renderFutoCards();
 }
 function dragEnd(e){ dragId=null; document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('dragging','drag-over')); }
+
+// タッチ操作（長押し後ドラッグ）
+function touchStart(e,id){
+  touchDragging=false;
+  touchTimer=setTimeout(()=>{
+    touchDragging=true;
+    dragId=id;
+    touchDragEl=document.getElementById('fc_'+id);
+    touchDragEl.classList.add('dragging');
+    // 振動フィードバック
+    if(navigator.vibrate) navigator.vibrate(50);
+    // クローン作成
+    touchClone=touchDragEl.cloneNode(true);
+    touchClone.style.cssText=`position:fixed;z-index:999;opacity:0.8;pointer-events:none;
+      width:${touchDragEl.offsetWidth}px;transform:scale(1.05);
+      box-shadow:0 8px 24px rgba(0,0,0,.2);border-radius:14px;`;
+    document.body.appendChild(touchClone);
+    const t=e.touches[0];
+    touchClone.style.left=(t.clientX - touchDragEl.offsetWidth/2)+'px';
+    touchClone.style.top=(t.clientY - touchDragEl.offsetHeight/2)+'px';
+  }, 500);
+}
+function touchMove(e){
+  if(!touchDragging){ clearTimeout(touchTimer); return; }
+  e.preventDefault();
+  if(!touchClone)return;
+  const t=e.touches[0];
+  touchClone.style.left=(t.clientX - touchClone.offsetWidth/2)+'px';
+  touchClone.style.top=(t.clientY - touchClone.offsetHeight/2)+'px';
+  touchClone.style.display='none';
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  touchClone.style.display='';
+  const targetCard=el?.closest('.futo-card');
+  document.querySelectorAll('.futo-card').forEach(c=>c.classList.remove('drag-over'));
+  if(targetCard&&targetCard.id!=='fc_'+dragId) targetCard.classList.add('drag-over');
+}
+function touchEnd(e){
+  clearTimeout(touchTimer);
+  if(!touchDragging){ touchDragging=false; return; }
+  if(!touchClone){ touchDragging=false; return; }
+  const t=e.changedTouches[0];
+  touchClone.style.display='none';
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  touchClone.style.display='';
+  const targetCard=el?.closest('.futo-card');
+  if(targetCard){
+    const targetId=targetCard.id.replace('fc_','');
+    if(targetId&&targetId!==dragId){
+      const cards=state.futoCards;
+      const fromIdx=cards.findIndex(c=>c.id===dragId);
+      const toIdx=cards.findIndex(c=>c.id===targetId);
+      if(fromIdx>=0&&toIdx>=0){
+        const [moved]=cards.splice(fromIdx,1);
+        cards.splice(toIdx,0,moved);
+        saveState();
+      }
+    }
+  }
+  touchClone.remove(); touchClone=null;
+  dragId=null; touchDragging=false;
+  document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('dragging','drag-over'));
+  renderFutoCards();
+}
 
 // 論点モーダル
 function openFutoModal(editId){
