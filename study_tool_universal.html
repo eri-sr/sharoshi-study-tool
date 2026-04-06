@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>試験勉強管理ツール</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Kaisei+Decol:wght@700&display=swap');
+:root {
+  --bg:#f5f3ee; --surface:#fff; --border:#e5dfd4; --text:#28231e;
+  --sub:#9e9890; --accent:#d44d28; --green:#3a9e6e;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);padding-bottom:76px;min-height:100vh;}
+
+.hdr{background:var(--text);color:#fff;padding:13px 16px 11px;position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;justify-content:space-between;}
+.hdr-title{font-family:'Kaisei Decol',serif;font-size:17px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;}
+.hdr-days{font-size:13px;color:#f28b82;font-weight:700;}
+.hdr-date{font-size:10px;color:#777;margin-top:1px;text-align:right;}
+
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--text);display:flex;z-index:300;border-top:1px solid #383028;}
+.nav-btn{flex:1;padding:8px 0 14px;background:none;border:none;color:#665e58;
+  font-size:9px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s;}
+.nav-btn .ic{font-size:21px;}
+.nav-btn.on{color:#f28b82;}
+
+.page{display:none;padding:14px;}
+.page.on{display:block;}
+
+.card{background:var(--surface);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.card-ttl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:24px;
+  padding:9px 20px;font-size:13px;font-family:inherit;cursor:pointer;font-weight:700;transition:opacity .15s;}
+.btn:active{opacity:.7;}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--text);}
+.btn-danger{background:none;border:1.5px solid #e74c3c;color:#e74c3c;}
+
+.inp{width:100%;border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-family:inherit;font-size:13px;color:var(--text);
+  background:var(--bg);outline:none;transition:border-color .2s;}
+.inp:focus{border-color:var(--accent);}
+textarea.inp{resize:none;}
+
+/* ===== 設定画面（初回） ===== */
+.setup-bg{position:fixed;inset:0;background:var(--bg);z-index:900;overflow-y:auto;padding:24px 16px 40px;}
+.setup-title{font-family:'Kaisei Decol',serif;font-size:24px;font-weight:700;text-align:center;margin-bottom:6px;}
+.setup-sub{font-size:13px;color:var(--sub);text-align:center;margin-bottom:24px;line-height:1.7;}
+.setup-label{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px;display:block;letter-spacing:.06em;}
+.setup-row{margin-bottom:18px;}
+.subj-setup-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.subj-setup-item{display:flex;align-items:center;gap:8px;}
+.subj-setup-item input[type=text]{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13px;background:var(--bg);outline:none;}
+.subj-setup-item input[type=text]:focus{border-color:var(--accent);}
+.color-dot{width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,0,0,.1);cursor:pointer;flex-shrink:0;}
+.subj-del-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:14px;color:var(--sub);}
+.add-subj-btn{width:100%;padding:10px;border:2px dashed var(--border);border-radius:10px;background:none;font-size:13px;color:var(--sub);cursor:pointer;font-family:inherit;}
+.color-picker-popup{display:none;flex-wrap:wrap;gap:8px;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-top:4px;}
+.color-picker-popup.on{display:flex;}
+.color-opt{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s;}
+.color-opt:active{transform:scale(.9);}
+.color-opt.selected{border-color:var(--text);}
+.setup-start-btn{width:100%;padding:16px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;}
+
+/* ===== HOME ===== */
+.countdown{text-align:center;padding:22px 0 18px;}
+.cd-num{font-family:'Kaisei Decol',serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1.3;}
+.cd-date{font-size:11px;color:#ccc;margin-top:8px;}
+.phase-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-bottom:5px;}
+.phasebar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#eee;}
+.ps{height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;}
+.phase-now{font-size:11px;font-weight:700;text-align:center;margin-top:6px;color:var(--accent);}
+
+.subj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.subj-card{border-radius:12px;padding:10px;position:relative;overflow:hidden;border:2px solid transparent;transition:border-color .2s;}
+.subj-card-name{font-size:14px;font-weight:700;color:rgba(0,0,0,.75);margin-bottom:8px;}
+.subj-act-row{display:flex;flex-direction:column;gap:5px;}
+.subj-act-btn{display:flex;align-items:center;justify-content:space-between;border:none;border-radius:8px;padding:6px 8px;font-family:inherit;cursor:pointer;background:rgba(255,255,255,.55);transition:background .15s;width:100%;}
+.subj-act-btn:active{background:rgba(255,255,255,.85);}
+.subj-act-btn.done{background:rgba(255,255,255,.9);}
+.subj-act-label{font-size:11px;font-weight:700;color:rgba(0,0,0,.65);display:flex;align-items:center;gap:4px;}
+.subj-act-days{font-size:10px;color:rgba(0,0,0,.4);white-space:nowrap;}
+.subj-act-days.warn{color:#c0392b;font-weight:700;}
+.subj-act-check{font-size:12px;}
+
+/* ===== 論点カード ===== */
+.filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
+.chip{padding:5px 13px;border-radius:20px;border:1.5px solid var(--border);font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;background:var(--surface);transition:all .15s;color:var(--text);}
+.chip.on{color:#fff;border-color:transparent;}
+.add-futo-btn{width:100%;padding:13px;border:2px dashed var(--border);border-radius:14px;background:none;font-size:14px;color:var(--sub);cursor:pointer;font-family:inherit;margin-bottom:12px;}
+.futo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.futo-card{border-radius:3px 14px 14px 14px;padding:12px;min-height:110px;position:relative;box-shadow:2px 4px 10px rgba(0,0,0,.09);cursor:pointer;transition:transform .15s;user-select:none;}
+.futo-card.dragging{opacity:.5;transform:scale(.97);box-shadow:none;}
+.futo-card.drag-over{outline:2px dashed rgba(0,0,0,.3);outline-offset:2px;}
+.futo-corner{position:absolute;top:0;left:0;width:0;height:0;border-style:solid;border-width:22px 22px 0 0;border-color:rgba(0,0,0,.13) transparent transparent transparent;}
+.futo-subj{font-size:10px;font-weight:700;color:rgba(0,0,0,.45);margin-bottom:6px;margin-left:10px;}
+.futo-body{font-size:13px;font-weight:700;line-height:1.55;color:rgba(0,0,0,.78);}
+.futo-next{font-size:11px;color:rgba(0,0,0,.52);margin-top:8px;line-height:1.45;border-top:1px solid rgba(0,0,0,.1);padding-top:6px;}
+.futo-next::before{content:"⚠️ ";}
+.reason-badges{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
+.reason-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;color:#fff;}
+.reason-btns{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.reason-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--border);border-radius:12px;background:var(--surface);font-family:inherit;font-size:13px;cursor:pointer;text-align:left;transition:all .15s;color:var(--text);width:100%;}
+.reason-btn.on{border-color:transparent;color:#fff;}
+.rb-text{display:flex;flex-direction:column;}
+.rb-label{font-weight:700;font-size:12px;}
+.rb-desc{font-size:10px;opacity:.8;margin-top:1px;}
+.reason-custom-wrap{display:flex;gap:6px;align-items:center;margin-top:4px;}
+.reason-custom-wrap input{flex:1;}
+.futo-actions{display:flex;gap:4px;position:absolute;top:6px;right:6px;}
+.futo-action-btn{background:rgba(0,0,0,.12);border:none;border-radius:50%;width:24px;height:24px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.55);}
+
+/* ===== 横断 ===== */
+.kodan-group-card{background:var(--surface);border-radius:16px;margin-bottom:14px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.kodan-group-head{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--text);}
+.kodan-group-kw{font-size:14px;font-weight:700;color:#fff;}
+.kodan-group-count{font-size:11px;color:#aaa;font-weight:700;}
+.kodan-futo-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);}
+.kodan-futo-row:last-child{border-bottom:none;}
+.kodan-futo-subj{width:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.kodan-futo-body{flex:1;padding:10px 10px 10px 12px;}
+.kodan-futo-content{font-size:13px;font-weight:700;line-height:1.55;color:var(--text);}
+.kodan-futo-next{font-size:11px;color:var(--sub);margin-top:5px;line-height:1.4;}
+.kodan-futo-edit{flex-shrink:0;background:none;border:none;font-size:16px;padding:0 10px;cursor:pointer;color:var(--sub);align-self:center;}
+
+/* ===== モーダル ===== */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.modal-bg.on{display:flex;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px 36px;width:100%;max-height:92vh;overflow-y:auto;}
+.modal-ttl{font-size:16px;font-weight:700;margin-bottom:16px;text-align:center;}
+.form-label{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:5px;display:block;letter-spacing:.06em;}
+.form-row{margin-bottom:14px;}
+.subj-select-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px;}
+.subj-sel-btn{border:2px solid var(--border);border-radius:8px;padding:7px 4px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--surface);text-align:center;transition:all .15s;color:var(--text);}
+.subj-sel-btn.on{color:#fff;border-color:transparent;}
+.modal-btns{display:flex;gap:8px;margin-top:8px;}
+.modal-btns .btn{flex:1;justify-content:center;}
+
+/* ===== 設定タブ ===== */
+.settings-subj-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.settings-subj-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg);border-radius:10px;}
+.settings-subj-color{width:24px;height:24px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid rgba(0,0,0,.1);}
+.settings-subj-name{flex:1;font-size:13px;font-weight:700;}
+.settings-subj-del{background:none;border:none;font-size:16px;cursor:pointer;color:var(--sub);}
+
+/* ===== 使い方 ===== */
+.help-hero{background:var(--text);border-radius:16px;padding:20px 16px;margin-bottom:14px;text-align:center;}
+.help-hero-title{font-family:'Kaisei Decol',serif;font-size:20px;color:#fff;font-weight:700;margin-bottom:6px;}
+.help-hero-sub{font-size:12px;color:#aaa;line-height:1.7;}
+.help-section{margin-bottom:14px;}
+.help-section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.help-section-icon{font-size:22px;}
+.help-section-title{font-size:16px;font-weight:700;}
+.help-card{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:10px;}
+.help-card-head{padding:12px 14px 10px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.help-card-body{padding:12px 14px;}
+.help-card-body p{font-size:13px;line-height:1.8;color:var(--text);margin-bottom:8px;}
+.help-card-body p:last-child{margin-bottom:0;}
+.help-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.help-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.help-step-body{flex:1;}
+.help-step-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.help-step-desc{font-size:12px;color:var(--sub);line-height:1.7;}
+.help-tip{background:#fff8e1;border-radius:10px;padding:10px 12px;border-left:3px solid #f0a83a;margin:8px 0;font-size:12px;line-height:1.7;}
+.help-tip::before{content:"💡 ";font-weight:700;}
+
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;z-index:600;transition:all .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.empty{text-align:center;padding:36px 16px;color:var(--sub);font-size:13px;line-height:1.9;}
+.mt8{margin-top:8px;}
+</style>
+</head>
+<body>
+
+<!-- 初回設定画面 -->
+<div class="setup-bg" id="setupBg">
+  <div class="setup-title">📚 勉強管理ツール</div>
+  <div class="setup-sub">試験の情報と科目を設定して始めましょう！<br>あとから設定タブで変更できます。</div>
+
+  <div class="setup-row">
+    <label class="setup-label">試験名</label>
+    <input class="inp" id="setupExamName" type="text" placeholder="例：社労士試験・宅建・FP2級">
+  </div>
+  <div class="setup-row">
+    <label class="setup-label">試験日</label>
+    <input class="inp" id="setupExamDate" type="date">
+  </div>
+  <div class="setup-row">
+    <label class="setup-label">科目（タップで色変更）</label>
+    <div class="subj-setup-list" id="subjSetupList"></div>
+    <button class="add-subj-btn" onclick="addSetupSubj()">＋ 科目を追加</button>
+  </div>
+  <button class="setup-start-btn" onclick="startApp()">✨ はじめる</button>
+</div>
+
+<!-- ヘッダー -->
+<div class="hdr" id="mainHdr" style="display:none;">
+  <div class="hdr-title" id="hdrTitle">勉強管理</div>
+  <div>
+    <div class="hdr-days" id="hdrDays">—日</div>
+    <div class="hdr-date">試験まで</div>
+  </div>
+</div>
+
+<!-- ホーム -->
+<div class="page" id="pageHome">
+  <div class="card">
+    <div class="countdown">
+      <div class="cd-num">あと <span id="cdNum">—</span> 日</div>
+      <div class="cd-date" id="cdDate"></div>
+    </div>
+    <div class="phase-labels">
+      <span>今日</span><span>基礎固め</span><span>横断強化</span><span>総仕上げ</span><span>試験</span>
+    </div>
+    <div class="phasebar" id="phaseBar"></div>
+    <div class="phase-now" id="phaseNow"></div>
+  </div>
+  <div class="card">
+    <div class="card-ttl">📖 やったことをタップ！</div>
+    <div class="subj-grid" id="subjGrid"></div>
+  </div>
+</div>
+
+<!-- 論点カード -->
+<div class="page" id="pageFuto">
+  <div class="filter-row" id="futoFilter"></div>
+  <button class="add-futo-btn" onclick="openFutoModal()">＋ 論点カードを追加</button>
+  <div class="futo-grid" id="futoGrid"></div>
+</div>
+
+<!-- 横断 -->
+<div class="page" id="pageKodan">
+  <div style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7;">
+    🔗 論点カードに「横断キーワード」をつけると、同じキーワードを持つカードが自動でグループになります。
+  </div>
+  <div id="kodanList"></div>
+</div>
+
+<!-- 設定 -->
+<div class="page" id="pageSettings">
+  <div class="card">
+    <div class="card-ttl">⚙️ 基本設定</div>
+    <div class="form-row">
+      <label class="form-label">試験名</label>
+      <input class="inp" id="settingsExamName" type="text" placeholder="試験名">
+    </div>
+    <div class="form-row">
+      <label class="form-label">試験日</label>
+      <input class="inp" id="settingsExamDate" type="date">
+    </div>
+    <button class="btn btn-accent mt8" onclick="saveSettings()">💾 保存</button>
+  </div>
+  <div class="card">
+    <div class="card-ttl">📚 科目の管理</div>
+    <div class="settings-subj-list" id="settingsSubjList"></div>
+    <button class="add-subj-btn" style="width:100%;padding:10px;border:2px dashed var(--border);border-radius:10px;background:none;font-size:13px;color:var(--sub);cursor:pointer;font-family:inherit;" onclick="addSettingsSubj()">＋ 科目を追加</button>
+    <button class="btn btn-accent mt8" onclick="saveSubjects()">💾 科目を保存</button>
+  </div>
+  <div class="card">
+    <div class="card-ttl">🗑️ データのリセット</div>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;line-height:1.7;">論点カードや学習記録をすべて削除して最初からやり直します。</p>
+    <p style="font-size:12px;color:#e74c3c;margin-bottom:12px;">⚠️ 削除したデータは元に戻せません。</p>
+    <button onclick="resetAllData()" style="width:100%;padding:12px;background:none;border:2px solid #e74c3c;border-radius:12px;color:#e74c3c;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">
+      🗑️ すべてのデータをリセットする
+    </button>
+  </div>
+</div>
+
+<!-- ナビ -->
+<nav class="nav" id="mainNav" style="display:none;">
+  <button class="nav-btn on" onclick="showPage('Home',this)"><span class="ic">🏠</span>ホーム</button>
+  <button class="nav-btn" onclick="showPage('Futo',this)"><span class="ic">📌</span>論点カード</button>
+  <button class="nav-btn" onclick="showPage('Kodan',this)"><span class="ic">🔗</span>横断</button>
+  <button class="nav-btn" onclick="showPage('Settings',this)"><span class="ic">⚙️</span>設定</button>
+</nav>
+
+<!-- 論点カードモーダル -->
+<div class="modal-bg" id="modalFuto">
+  <div class="modal">
+    <div class="modal-ttl" id="futoModalTtl">📌 論点カードを追加</div>
+    <div class="form-row">
+      <label class="form-label">科目</label>
+      <div class="subj-select-grid" id="modalSubjGrid"></div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">論点・苦手ポイント</label>
+      <textarea class="inp" id="futoContent" rows="3" placeholder="例：間違えた論点・覚えられない内容"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">⚠️ 間違えた理由・引っかけポイント</label>
+      <textarea class="inp" id="futoNext" rows="2" placeholder="例：〇〇と混同していた／10日→✕ 正しくは5日"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">😓 できない理由（複数選択OK）</label>
+      <div class="reason-btns" id="reasonBtns"></div>
+      <div class="reason-custom-wrap">
+        <input class="inp" id="reasonCustom" type="text" placeholder="その他（自由記入）">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">🔗 横断キーワード（カンマ区切り）</label>
+      <input class="inp" id="futoKeywords" type="text" placeholder="例：期限、対象者、手続き">
+      <div style="font-size:11px;color:var(--sub);margin-top:5px;">同じキーワードのカードが横断タブで自動グループ化されます</div>
+    </div>
+    <div id="futoDeleteRow" style="display:none;margin-bottom:8px;">
+      <button class="btn btn-danger" style="width:100%;justify-content:center;" onclick="deleteFutoFromModal()">🗑️ このカードを削除</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeFutoModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveFuto()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- カラーピッカーモーダル -->
+<div class="modal-bg" id="modalColor">
+  <div class="modal">
+    <div class="modal-ttl">🎨 色を選ぶ</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:10px 0;" id="colorPickerGrid"></div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeColorModal()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS = [
+  '#f28b82','#f6ae5c','#5dbf85','#42b0d8','#9b72d0',
+  '#f07ba8','#3ec9bc','#f0a83a','#b05ec0','#5aaee8',
+  '#e8a097','#7bc67a','#6db8e8','#c49ae0','#e88fae',
+  '#8dd4c8','#f5c76a','#a97fd4','#78c4e8','#f0a878',
+];
+
+const REASONS = [
+  {id:'r1', icon:'😶', label:'覚えてない',         desc:'そもそも知識が定着していない',      color:'#e8908a'},
+  {id:'r2', icon:'🔢', label:'数字で引っかかった',   desc:'数値・期間・割合などのミス',        color:'#e8a97a'},
+  {id:'r3', icon:'🔀', label:'他分野と混同',        desc:'似た内容・用語と混同してしまった',   color:'#a98fd4'},
+  {id:'r4', icon:'🤯', label:'理解が足りない',      desc:'仕組み・理屈がわかっていない',      color:'#7aaed4'},
+  {id:'r5', icon:'📢', label:'最新情報・改正ポイント',desc:'改正前の内容で覚えていた',         color:'#6dbf8a'},
+  {id:'r6', icon:'😅', label:'うっかり忘れてた',    desc:'知ってるのに本番で出てこなかった',   color:'#c4a87a'},
+];
+
+let state = {
+  examName: '',
+  examDate: '',
+  subjects: [],   // [{id,name,color}]
+  studyLog: {},   // {subjId: {text:'2026-04-01', prob:'2026-04-01'}}
+  futoCards: [],
+};
+
+const STORAGE_KEY = 'study_tool_universal_v1';
+function loadState(){ const s=localStorage.getItem(STORAGE_KEY); if(s){ try{ state={...state,...JSON.parse(s)}; }catch(e){} } }
+function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function daysAgo(d){ if(!d)return null; const a=new Date(d),b=new Date(); a.setHours(0,0,0,0);b.setHours(0,0,0,0); return Math.floor((b-a)/86400000); }
+function daysLeft(){ if(!state.examDate)return 0; const n=new Date(),e=new Date(state.examDate); n.setHours(0,0,0,0);e.setHours(0,0,0,0); return Math.max(0,Math.floor((e-n)/86400000)); }
+function subjById(id){ return state.subjects.find(s=>s.id===id)||{id:'',name:'?',color:'#ccc'}; }
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function showToast(msg){ const e=document.getElementById('toast'); e.textContent=msg; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'),2200); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function fmtDate(d){ if(!d)return ''; const dt=new Date(d); return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`; }
+
+// ===== 初回設定 =====
+const DEFAULT_SUBJECTS = [
+  {id:'s1',name:'科目1',color:'#f28b82'},
+  {id:'s2',name:'科目2',color:'#f6ae5c'},
+  {id:'s3',name:'科目3',color:'#5dbf85'},
+];
+
+function renderSetupSubjList(){
+  const list=document.getElementById('subjSetupList');
+  const items=list.querySelectorAll('.subj-setup-item');
+  const data=Array.from(items).map(item=>({
+    id: item.dataset.id,
+    name: item.querySelector('input[type=text]').value,
+    color: item.querySelector('.color-dot').style.background,
+  }));
+  return data;
+}
+
+let setupSubjects=[...DEFAULT_SUBJECTS.map(s=>({...s}))];
+
+function renderSetupList(){
+  document.getElementById('subjSetupList').innerHTML=setupSubjects.map((s,i)=>`
+    <div class="subj-setup-item" data-id="${s.id}">
+      <div class="color-dot" style="background:${s.color};" onclick="openColorModal('setup',${i})"></div>
+      <input type="text" value="${s.name}" placeholder="科目名" oninput="setupSubjects[${i}].name=this.value">
+      <button class="subj-del-btn" onclick="removeSetupSubj(${i})">✕</button>
+    </div>`).join('');
+}
+function addSetupSubj(){
+  setupSubjects.push({id:uid(),name:'',color:COLORS[setupSubjects.length%COLORS.length]});
+  renderSetupList();
+}
+function removeSetupSubj(i){ if(setupSubjects.length<=1){showToast('科目は1つ以上必要です');return;} setupSubjects.splice(i,1); renderSetupList(); }
+
+function startApp(){
+  const name=document.getElementById('setupExamName').value.trim();
+  const date=document.getElementById('setupExamDate').value;
+  if(!name){showToast('試験名を入力してください');return;}
+  if(!date){showToast('試験日を入力してください');return;}
+  const subjs=setupSubjects.filter(s=>s.name.trim());
+  if(!subjs.length){showToast('科目を1つ以上入力してください');return;}
+  state.examName=name;
+  state.examDate=date;
+  state.subjects=subjs.map(s=>({...s,name:s.name.trim()}));
+  saveState();
+  initApp();
+}
+
+// ===== アプリ初期化 =====
+function initApp(){
+  document.getElementById('setupBg').style.display='none';
+  document.getElementById('mainHdr').style.display='flex';
+  document.getElementById('mainNav').style.display='flex';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pageHome').classList.add('on');
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('on',i===0));
+  renderHeader();
+  renderPhaseBar();
+  renderSubjGrid();
+  renderSettingsForm();
+}
+
+// ===== ナビ =====
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='Futo') renderFuto();
+  if(name==='Kodan') renderKodan();
+  if(name==='Settings') renderSettingsForm();
+}
+
+// ===== ヘッダー・フェーズ =====
+function renderHeader(){
+  const d=daysLeft();
+  document.getElementById('cdNum').textContent=d;
+  document.getElementById('hdrDays').textContent=d+'日';
+  document.getElementById('hdrTitle').textContent='📚 '+( state.examName||'勉強管理');
+  document.getElementById('cdDate').textContent=fmtDate(state.examDate)+(state.examDate?' 試験':'');
+}
+function renderPhaseBar(){
+  const d=daysLeft(),total=140;
+  const phases=[
+    {name:'基礎固め',days:Math.max(0,d-70),color:'#5dbf85'},
+    {name:'横断強化',days:Math.max(0,Math.min(d,70)-28),color:'#42b0d8'},
+    {name:'総仕上げ',days:Math.min(d,28),color:'#d44d28'},
+  ];
+  document.getElementById('phaseBar').innerHTML=phases.map(p=>{
+    const w=Math.round(p.days/total*100);
+    return `<div class="ps" style="width:${w}%;background:${p.color};">${w>10?p.name:''}</div>`;
+  }).join('');
+  const n=document.getElementById('phaseNow');
+  if(d>70) n.textContent='📗 今は「基礎固め」フェーズ';
+  else if(d>28) n.textContent='📘 今は「横断強化」フェーズ';
+  else if(d>0) n.textContent='🔥 今は「総仕上げ」フェーズ！';
+  else n.textContent='🎌 試験日！';
+}
+
+// ===== 科目ボタン =====
+function daysAgoLabel(dateStr){
+  const ago=daysAgo(dateStr);
+  if(ago===null) return {txt:'－',cls:''};
+  if(ago===0) return {txt:'今日！',cls:'ok'};
+  if(ago===1) return {txt:'昨日',cls:'ok'};
+  if(ago>=7) return {txt:ago+'日 放置…',cls:'warn'};
+  return {txt:ago+'日前',cls:'ok'};
+}
+function renderSubjGrid(){
+  document.getElementById('subjGrid').innerHTML=state.subjects.map(s=>{
+    const tDate=(state.studyLog[s.id]||{}).text;
+    const pDate=(state.studyLog[s.id]||{}).prob;
+    const tL=daysAgoLabel(tDate), pL=daysAgoLabel(pDate);
+    const anyToday=tDate===today()||pDate===today();
+    return `<div class="subj-card" style="background:${s.color}22;border-color:${anyToday?s.color:'transparent'};">
+      <div class="subj-card-name">${s.name}</div>
+      <div class="subj-act-row">
+        <button class="subj-act-btn${tDate===today()?' done':''}" onclick="studyLog('${s.id}','text',this)">
+          <span class="subj-act-label">📖 テキスト${tDate===today()?' <span class="subj-act-check">✓</span>':''}</span>
+          <span class="subj-act-days ${tL.cls}">${tDate===today()?'読んだ！':tL.txt}</span>
+        </button>
+        <button class="subj-act-btn${pDate===today()?' done':''}" onclick="studyLog('${s.id}','prob',this)">
+          <span class="subj-act-label">✏️ 問題${pDate===today()?' <span class="subj-act-check">✓</span>':''}</span>
+          <span class="subj-act-days ${pL.cls}">${pDate===today()?'解いた！':pL.txt}</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function studyLog(subjId,type,btn){
+  if(!state.studyLog[subjId]) state.studyLog[subjId]={};
+  const wasToday=state.studyLog[subjId][type]===today();
+  if(wasToday){ delete state.studyLog[subjId][type]; showToast('記録を取り消しました'); }
+  else{
+    state.studyLog[subjId][type]=today();
+    showToast(subjById(subjId).name+(type==='text'?' テキスト読んだ！📖':' 問題解いた！✏️'));
+  }
+  saveState(); renderSubjGrid();
+}
+
+// ===== 論点カード =====
+let futoFilter='all', futoReasonFilter='all', editingFutoId=null;
+let selectedSubjForFuto='', selectedReasons=[];
+
+function renderFutoFilter(){
+  const all=[{id:'all',name:'すべて',color:'#888'},...state.subjects];
+  document.getElementById('futoFilter').innerHTML=all.map(s=>{
+    const on=futoFilter===s.id;
+    return `<button class="chip${on?' on':''}" style="${on?`background:${s.color};`:''}" onclick="setFutoFilter('${s.id}')">${s.name}</button>`;
+  }).join('');
+  let r2=document.getElementById('futoFilter2');
+  if(!r2){ r2=document.createElement('div'); r2.id='futoFilter2'; r2.className='filter-row'; document.getElementById('futoFilter').after(r2); }
+  const rAll=[{id:'all',icon:'📋',label:'すべて',color:'#888'},...REASONS];
+  r2.innerHTML=rAll.map(r=>{
+    const on=futoReasonFilter===r.id;
+    return `<button class="chip${on?' on':''}" style="${on?`background:${r.color};`:''}" onclick="setFutoReasonFilter('${r.id}')">${r.icon} ${r.label}</button>`;
+  }).join('');
+}
+function setFutoFilter(id){ futoFilter=id; renderFutoFilter(); renderFutoCards(); }
+function setFutoReasonFilter(id){ futoReasonFilter=id; renderFutoFilter(); renderFutoCards(); }
+
+function renderFutoCards(){
+  const grid=document.getElementById('futoGrid');
+  let cards=[...state.futoCards];
+  if(futoFilter!=='all') cards=cards.filter(c=>c.subjId===futoFilter);
+  if(futoReasonFilter!=='all') cards=cards.filter(c=>(c.reasons||[]).includes(futoReasonFilter));
+  if(!cards.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1">まだ論点カードがありません。<br>＋ボタンで追加してみよう！</div>';
+    return;
+  }
+  grid.innerHTML=cards.map(c=>{
+    const s=subjById(c.subjId);
+    const reasonBadges=(c.reasons||[]).map(rid=>{
+      const r=REASONS.find(x=>x.id===rid);
+      return r?`<span class="reason-badge" style="background:${r.color};">${r.icon} ${r.label}</span>`:'';
+    }).join('');
+    const customBadge=c.reasonCustom?`<span class="reason-badge" style="background:#555;">✏️ ${escHtml(c.reasonCustom)}</span>`:'';
+    return `<div class="futo-card" id="fc_${c.id}" style="background:${s.color}33;"
+      draggable="true"
+      ondragstart="dragStart(event,'${c.id}')"
+      ondragover="dragOver(event,'${c.id}')"
+      ondrop="dragDrop(event,'${c.id}')"
+      ondragend="dragEnd(event)"
+      ontouchstart="touchStart(event,'${c.id}')"
+      ontouchmove="touchMove(event)"
+      ontouchend="touchEnd(event)">
+      <div class="futo-corner"></div>
+      <div class="futo-actions">
+        <button class="futo-action-btn" onclick="openFutoModal('${c.id}')">✏️</button>
+        <button class="futo-action-btn" onclick="deleteFuto('${c.id}')">✕</button>
+      </div>
+      <div class="futo-subj">${s.name}</div>
+      <div class="futo-body">${escHtml(c.content)}</div>
+      ${c.next?`<div class="futo-next">${escHtml(c.next)}</div>`:''}
+      ${(reasonBadges||customBadge)?`<div class="reason-badges">${reasonBadges}${customBadge}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function renderFuto(){ renderFutoFilter(); renderFutoCards(); }
+
+// ドラッグ&ドロップ（長押し対応）
+let dragId=null,touchClone=null,touchTimer=null,touchDragging=false;
+function dragStart(e,id){ dragId=id; document.getElementById('fc_'+id).classList.add('dragging'); }
+function dragOver(e,id){ e.preventDefault(); if(id!==dragId){ document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('drag-over')); document.getElementById('fc_'+id)?.classList.add('drag-over'); } }
+function dragDrop(e,targetId){
+  e.preventDefault();
+  if(!dragId||dragId===targetId)return;
+  const cards=state.futoCards;
+  const fi=cards.findIndex(c=>c.id===dragId), ti=cards.findIndex(c=>c.id===targetId);
+  if(fi<0||ti<0)return;
+  const [m]=cards.splice(fi,1); cards.splice(ti,0,m);
+  saveState(); renderFutoCards();
+}
+function dragEnd(){ dragId=null; document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('dragging','drag-over')); }
+function touchStart(e,id){
+  touchDragging=false;
+  touchTimer=setTimeout(()=>{
+    touchDragging=true; dragId=id;
+    const el=document.getElementById('fc_'+id);
+    el.classList.add('dragging');
+    if(navigator.vibrate) navigator.vibrate(50);
+    touchClone=el.cloneNode(true);
+    touchClone.style.cssText=`position:fixed;z-index:999;opacity:.8;pointer-events:none;width:${el.offsetWidth}px;transform:scale(1.05);box-shadow:0 8px 24px rgba(0,0,0,.2);border-radius:14px;`;
+    document.body.appendChild(touchClone);
+    const t=e.touches[0];
+    touchClone.style.left=(t.clientX-el.offsetWidth/2)+'px';
+    touchClone.style.top=(t.clientY-el.offsetHeight/2)+'px';
+  },500);
+}
+function touchMove(e){
+  if(!touchDragging){clearTimeout(touchTimer);return;}
+  e.preventDefault();
+  if(!touchClone)return;
+  const t=e.touches[0];
+  touchClone.style.left=(t.clientX-touchClone.offsetWidth/2)+'px';
+  touchClone.style.top=(t.clientY-touchClone.offsetHeight/2)+'px';
+  touchClone.style.display='none';
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  touchClone.style.display='';
+  const tc=el?.closest('.futo-card');
+  document.querySelectorAll('.futo-card').forEach(c=>c.classList.remove('drag-over'));
+  if(tc&&tc.id!=='fc_'+dragId) tc.classList.add('drag-over');
+}
+function touchEnd(e){
+  clearTimeout(touchTimer);
+  if(!touchDragging){touchDragging=false;return;}
+  if(!touchClone){touchDragging=false;return;}
+  const t=e.changedTouches[0];
+  touchClone.style.display='none';
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  touchClone.style.display='';
+  const tc=el?.closest('.futo-card');
+  if(tc){
+    const tid=tc.id.replace('fc_','');
+    if(tid&&tid!==dragId){
+      const cards=state.futoCards;
+      const fi=cards.findIndex(c=>c.id===dragId), ti=cards.findIndex(c=>c.id===tid);
+      if(fi>=0&&ti>=0){const [m]=cards.splice(fi,1);cards.splice(ti,0,m);saveState();}
+    }
+  }
+  touchClone.remove(); touchClone=null; dragId=null; touchDragging=false;
+  document.querySelectorAll('.futo-card').forEach(el=>el.classList.remove('dragging','drag-over'));
+  renderFutoCards();
+}
+
+// 論点モーダル
+function openFutoModal(editId){
+  editingFutoId=editId||null;
+  const isEdit=!!editId;
+  document.getElementById('futoModalTtl').textContent=isEdit?'✏️ 論点カードを編集':'📌 論点カードを追加';
+  document.getElementById('futoDeleteRow').style.display=isEdit?'block':'none';
+  if(isEdit){
+    const c=state.futoCards.find(x=>x.id===editId); if(!c)return;
+    selectedSubjForFuto=c.subjId; selectedReasons=[...(c.reasons||[])];
+    document.getElementById('futoContent').value=c.content||'';
+    document.getElementById('futoNext').value=c.next||'';
+    document.getElementById('reasonCustom').value=c.reasonCustom||'';
+    document.getElementById('futoKeywords').value=(c.keywords||[]).join('、');
+  } else {
+    selectedSubjForFuto=state.subjects[0]?.id||'';
+    selectedReasons=[];
+    ['futoContent','futoNext','reasonCustom','futoKeywords'].forEach(id=>document.getElementById(id).value='');
+  }
+  renderModalSubjGrid(); renderReasonBtns();
+  document.getElementById('modalFuto').classList.add('on');
+}
+function closeFutoModal(){ document.getElementById('modalFuto').classList.remove('on'); }
+document.getElementById('modalFuto').addEventListener('click',function(e){ if(e.target===this)closeFutoModal(); });
+
+function renderModalSubjGrid(){
+  document.getElementById('modalSubjGrid').innerHTML=state.subjects.map(s=>{
+    const on=selectedSubjForFuto===s.id;
+    return `<button class="subj-sel-btn${on?' on':''}" style="${on?`background:${s.color};color:#fff;border-color:${s.color};`:''}" onclick="selectSubjForFuto('${s.id}')">${s.name}</button>`;
+  }).join('');
+}
+function selectSubjForFuto(id){ selectedSubjForFuto=id; renderModalSubjGrid(); }
+function renderReasonBtns(){
+  document.getElementById('reasonBtns').innerHTML=REASONS.map(r=>{
+    const on=selectedReasons.includes(r.id);
+    return `<button class="reason-btn${on?' on':''}" style="${on?`background:${r.color};border-color:${r.color};`:''}" onclick="toggleReason('${r.id}')">
+      <span style="font-size:18px;">${r.icon}</span>
+      <div class="rb-text"><div class="rb-label">${r.label}</div><div class="rb-desc">${r.desc}</div></div>
+    </button>`;
+  }).join('');
+}
+function toggleReason(id){
+  const i=selectedReasons.indexOf(id);
+  if(i>=0) selectedReasons.splice(i,1); else selectedReasons.push(id);
+  renderReasonBtns();
+}
+function saveFuto(){
+  const content=document.getElementById('futoContent').value.trim();
+  if(!content){showToast('論点を入力してください');return;}
+  const reasonCustom=document.getElementById('reasonCustom').value.trim();
+  const keywords=document.getElementById('futoKeywords').value.split(/[,，、\s]+/).map(t=>t.trim()).filter(Boolean);
+  if(editingFutoId){
+    const c=state.futoCards.find(x=>x.id===editingFutoId);
+    if(c){c.subjId=selectedSubjForFuto;c.content=content;c.next=document.getElementById('futoNext').value.trim();c.reasons=[...selectedReasons];c.reasonCustom=reasonCustom;c.keywords=keywords;}
+    showToast('論点カードを更新しました✏️');
+  } else {
+    state.futoCards.push({id:uid(),subjId:selectedSubjForFuto,content,next:document.getElementById('futoNext').value.trim(),reasons:[...selectedReasons],reasonCustom,keywords});
+    showToast('論点カードを追加しました📌');
+  }
+  saveState(); closeFutoModal(); renderFuto();
+}
+function deleteFuto(id){
+  if(!confirm('このカードを削除しますか？'))return;
+  state.futoCards=state.futoCards.filter(c=>c.id!==id);
+  saveState(); renderFutoCards(); showToast('削除しました');
+}
+function deleteFutoFromModal(){
+  if(!editingFutoId||!confirm('このカードを削除しますか？'))return;
+  state.futoCards=state.futoCards.filter(c=>c.id!==editingFutoId);
+  saveState(); closeFutoModal(); renderFuto(); showToast('削除しました');
+}
+
+// ===== 横断 =====
+function renderKodan(){
+  const el=document.getElementById('kodanList');
+  const groupMap={};
+  state.futoCards.forEach(c=>{
+    (c.keywords||[]).forEach(kw=>{
+      if(!groupMap[kw]) groupMap[kw]=[];
+      groupMap[kw].push(c);
+    });
+  });
+  const groups=Object.entries(groupMap).filter(([,cards])=>cards.length>0);
+  if(!groups.length){
+    el.innerHTML='<div class="empty">まだ横断グループがありません。<br>論点カードに「横断キーワード」を入れると<br>自動でここにグループが現れます！</div>';
+    return;
+  }
+  el.innerHTML=groups.map(([kw,cards])=>{
+    const sorted=[...cards].sort((a,b)=>state.subjects.findIndex(s=>s.id===a.subjId)-state.subjects.findIndex(s=>s.id===b.subjId));
+    const cardHtml=sorted.map(c=>{
+      const s=subjById(c.subjId);
+      const rb=(c.reasons||[]).map(rid=>{const r=REASONS.find(x=>x.id===rid);return r?`<span class="reason-badge" style="background:${r.color};font-size:9px;">${r.icon}</span>`:''}).join('');
+      return `<div class="kodan-futo-row">
+        <div class="kodan-futo-subj" style="background:${s.color};">${s.name}</div>
+        <div class="kodan-futo-body">
+          <div class="kodan-futo-content">${escHtml(c.content)}</div>
+          ${c.next?`<div class="kodan-futo-next">⚠️ ${escHtml(c.next)}</div>`:''}
+          ${rb?`<div style="margin-top:4px;">${rb}</div>`:''}
+        </div>
+        <button class="kodan-futo-edit" onclick="openFutoModal('${c.id}')">✏️</button>
+      </div>`;
+    }).join('');
+    return `<div class="kodan-group-card">
+      <div class="kodan-group-head">
+        <div class="kodan-group-kw">🔗 ${escHtml(kw)}</div>
+        <div class="kodan-group-count">${cards.length}科目</div>
+      </div>
+      ${cardHtml}
+    </div>`;
+  }).join('');
+}
+
+// ===== 設定タブ =====
+let settingsSubjects=[];
+function renderSettingsForm(){
+  document.getElementById('settingsExamName').value=state.examName||'';
+  document.getElementById('settingsExamDate').value=state.examDate||'';
+  settingsSubjects=state.subjects.map(s=>({...s}));
+  renderSettingsSubjList();
+}
+function renderSettingsSubjList(){
+  document.getElementById('settingsSubjList').innerHTML=settingsSubjects.map((s,i)=>`
+    <div class="settings-subj-item">
+      <div class="settings-subj-color" style="background:${s.color};" onclick="openColorModal('settings',${i})"></div>
+      <div class="settings-subj-name">
+        <input style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-family:inherit;font-size:13px;background:var(--bg);outline:none;"
+          value="${s.name}" oninput="settingsSubjects[${i}].name=this.value">
+      </div>
+      <button class="settings-subj-del" onclick="removeSettingsSubj(${i})">🗑️</button>
+    </div>`).join('');
+}
+function addSettingsSubj(){
+  settingsSubjects.push({id:uid(),name:'',color:COLORS[settingsSubjects.length%COLORS.length]});
+  renderSettingsSubjList();
+}
+function removeSettingsSubj(i){
+  if(settingsSubjects.length<=1){showToast('科目は1つ以上必要です');return;}
+  settingsSubjects.splice(i,1); renderSettingsSubjList();
+}
+function saveSettings(){
+  const name=document.getElementById('settingsExamName').value.trim();
+  const date=document.getElementById('settingsExamDate').value;
+  if(!name){showToast('試験名を入力してください');return;}
+  if(!date){showToast('試験日を入力してください');return;}
+  state.examName=name; state.examDate=date;
+  saveState(); renderHeader(); renderPhaseBar();
+  showToast('設定を保存しました💾');
+}
+function saveSubjects(){
+  const subjs=settingsSubjects.filter(s=>s.name.trim());
+  if(!subjs.length){showToast('科目を1つ以上入力してください');return;}
+  state.subjects=subjs.map(s=>({...s,name:s.name.trim()}));
+  saveState(); renderSubjGrid(); renderFuto();
+  showToast('科目を保存しました💾');
+}
+
+// ===== カラーピッカー =====
+let colorModalTarget=null; // {type:'setup'|'settings', index:number}
+function openColorModal(type,index){
+  colorModalTarget={type,index};
+  const currentColor = type==='setup'?setupSubjects[index].color:settingsSubjects[index].color;
+  document.getElementById('colorPickerGrid').innerHTML=COLORS.map(c=>`
+    <div class="color-opt${c===currentColor?' selected':''}" style="background:${c};" onclick="selectColor('${c}')"></div>
+  `).join('');
+  document.getElementById('modalColor').classList.add('on');
+}
+function closeColorModal(){ document.getElementById('modalColor').classList.remove('on'); colorModalTarget=null; }
+document.getElementById('modalColor').addEventListener('click',function(e){ if(e.target===this)closeColorModal(); });
+function selectColor(color){
+  if(!colorModalTarget)return;
+  if(colorModalTarget.type==='setup'){
+    setupSubjects[colorModalTarget.index].color=color;
+    renderSetupList();
+  } else {
+    settingsSubjects[colorModalTarget.index].color=color;
+    renderSettingsSubjList();
+  }
+  closeColorModal();
+}
+
+// ===== リセット =====
+function resetAllData(){
+  if(!confirm('すべてのデータを削除して最初からやり直しますか？\nこの操作は元に戻せません。'))return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// ===== 初期化 =====
+loadState();
+if(state.examName && state.examDate && state.subjects.length){
+  initApp();
+} else {
+  // 設定画面を表示
+  document.getElementById('setupBg').style.display='block';
+  renderSetupList();
+}
+setInterval(()=>{ if(state.examName){ renderHeader(); renderPhaseBar(); } },60000);
+</script>
+</body>
+</html>
