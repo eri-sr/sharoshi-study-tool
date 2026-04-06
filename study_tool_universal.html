@@ -269,12 +269,18 @@ textarea.inp{resize:none;}
   </div>
 </div>
 
+<!-- 使い方 -->
+<div class="page" id="pageHelp">
+  <div id="helpContent"></div>
+</div>
+
 <!-- ナビ -->
 <nav class="nav" id="mainNav" style="display:none;">
   <button class="nav-btn on" onclick="showPage('Home',this)"><span class="ic">🏠</span>ホーム</button>
   <button class="nav-btn" onclick="showPage('Futo',this)"><span class="ic">📌</span>論点カード</button>
   <button class="nav-btn" onclick="showPage('Kodan',this)"><span class="ic">🔗</span>横断</button>
   <button class="nav-btn" onclick="showPage('Settings',this)"><span class="ic">⚙️</span>設定</button>
+  <button class="nav-btn" onclick="showPage('Help',this)"><span class="ic">📖</span>使い方</button>
 </nav>
 
 <!-- 論点カードモーダル -->
@@ -436,6 +442,182 @@ function showPage(name,btn){
   if(name==='Futo') renderFuto();
   if(name==='Kodan') renderKodan();
   if(name==='Settings') renderSettingsForm();
+  if(name==='Help') renderHelp();
+}
+
+// ===== 使い方 =====
+function renderHelp(){
+  document.getElementById('helpContent').innerHTML=`
+  <div class="help-hero">
+    <div class="help-hero-title">📚 使い方ガイド</div>
+    <div class="help-hero-sub">試験名・科目を自分で設定できる勉強管理アプリです。<br>論点カードを育てながら、試験直前に<br>ここだけ見返せる状態を作りましょう！</div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🗺️</div>
+      <div class="help-section-title">全体の使い方イメージ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <div class="help-step-body">
+            <div class="help-step-title">初回設定で試験情報を入力</div>
+            <div class="help-step-desc">試験名・試験日・科目名と色を設定。あとから⚙️設定タブで変更できます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <div class="help-step-body">
+            <div class="help-step-title">勉強したらホームで記録</div>
+            <div class="help-step-desc">「📖 テキスト読んだ」「✏️ 問題解いた」をタップするだけ。何日放置しているかが見えます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <div class="help-step-body">
+            <div class="help-step-title">間違えたら論点カードに追加</div>
+            <div class="help-step-desc">「なぜ間違えたか」「引っかけポイント」を付箋感覚でペタっと記録。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">4</div>
+          <div class="help-step-body">
+            <div class="help-step-title">横断論点に気づいたらキーワードを追加</div>
+            <div class="help-step-desc">「あ、これ他の科目でも出てくる！」と思ったら横断キーワードを入力。横断タブで自動グループ化されます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">5</div>
+          <div class="help-step-body">
+            <div class="help-step-title">試験直前にここで総復習</div>
+            <div class="help-step-desc">集まった論点カード＝自分だけの弱点集。試験前にここだけ見返せばOK！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">⚙️</div>
+      <div class="help-section-title">初回設定・設定タブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">🎨 試験・科目の設定</div>
+      <div class="help-card-body">
+        <p>初回起動時に設定画面が表示されます。試験名・試験日・科目名と色を入力して「はじめる」をタップ。</p>
+        <p>科目は色分けできます。タップするとカラーパレットが表示されるので好きな色を選んでください。</p>
+        <p>設定はいつでも⚙️設定タブから変更できます。科目の追加・削除もOK。</p>
+        <div class="help-tip">科目名は短めにするとカードが見やすくなります。例：「民法」「宅建業法」など。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🏠</div>
+      <div class="help-section-title">ホームタブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📅 試験までのカウントダウン</div>
+      <div class="help-card-body">
+        <p>試験まであと何日かが一目でわかります。フェーズバーは「基礎固め→横断強化→総仕上げ」の3段階で今のフェーズを表示します。</p>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📖 やったことをタップ！</div>
+      <div class="help-card-body">
+        <p>科目ごとに「📖 テキスト読んだ」「✏️ 問題解いた」の2つのボタンがあります。タップするだけで記録されます。もう一度タップすると取り消せます。</p>
+        <p>ボタンの右側に最後にやった日からの日数が表示されます。<strong>7日以上さわっていないと赤字で「放置…」</strong>と表示されます。</p>
+        <div class="help-tip">テキストと問題で別々に記録できるので「テキストは読んだけど問題はまだ」という状態も把握できます。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">📌</div>
+      <div class="help-section-title">論点カードタブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">➕ カードの追加方法</div>
+      <div class="help-card-body">
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <div class="help-step-body"><div class="help-step-title">「＋ 論点カードを追加」をタップ</div></div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <div class="help-step-body"><div class="help-step-title">科目を選ぶ</div></div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <div class="help-step-body">
+            <div class="help-step-title">論点と引っかけポイントを入力</div>
+            <div class="help-step-desc">「10日→✕ 正しくは5日」のように具体的に書くと復習しやすいです。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">4</div>
+          <div class="help-step-body">
+            <div class="help-step-title">できない理由を選ぶ（複数OK）</div>
+            <div class="help-step-desc">覚えてない／数字で引っかかった／他分野と混同／理解が足りない／最新情報・改正ポイント／うっかり忘れてた</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">5</div>
+          <div class="help-step-body">
+            <div class="help-step-title">横断キーワードを入力（任意）</div>
+            <div class="help-step-desc">他の科目にも出てくるキーワードを入れると横断タブで自動グループ化されます。</div>
+          </div>
+        </div>
+        <div class="help-tip">✏️ボタンでいつでも編集できます。まずサクッと追加してOK！</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">🔀 並び替え・絞り込み</div>
+      <div class="help-card-body">
+        <p>科目フィルターとできない理由フィルターで絞り込みができます。カードは長押し（約0.5秒）でドラッグして並び替えができます。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">🔗</div>
+      <div class="help-section-title">横断タブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <p>論点カードに同じ横断キーワードをつけると、このタブで自動的にグループとして並びます。科目ごとの違いが縦に並ぶので<strong>混同しやすい論点を一気に比較</strong>できます。</p>
+        <p>各行の右端の✏️ボタンからカードを直接編集できます。</p>
+        <div class="help-tip">横断タブは論点カードを育てるほど充実します！</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">💾</div>
+      <div class="help-section-title">データの保存について</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <p>入力したデータはすべて<strong>このブラウザに自動保存</strong>されます。次に開いたときも続きから使えます。</p>
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9;color:var(--sub);">
+          ・ブラウザの「閲覧データを消去」をした場合は消えます<br>
+          ・別のブラウザやデバイスからは見られません<br>
+          ・プライベートブラウズモードでは保存されません
+        </div>
+        <div class="help-tip">同じスマホの同じブラウザで開くのがおすすめです。</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:20px;"></div>
+  `;
 }
 
 // ===== ヘッダー・フェーズ =====
