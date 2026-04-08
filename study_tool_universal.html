@@ -657,8 +657,8 @@ function daysAgoLabel(dateStr){
 }
 function renderSubjGrid(){
   document.getElementById('subjGrid').innerHTML=state.subjects.map(s=>{
-    const tDate=(state.studyLog[s.id]||{}).text;
-    const pDate=(state.studyLog[s.id]||{}).prob;
+    const tDate=((state.studyLog[s.id]||{}).text||{}).current||null;
+    const pDate=((state.studyLog[s.id]||{}).prob||{}).current||null;
     const tL=daysAgoLabel(tDate), pL=daysAgoLabel(pDate);
     const anyToday=tDate===today()||pDate===today();
     return `<div class="subj-card" style="background:${s.color}22;border-color:${anyToday?s.color:'transparent'};">
@@ -678,10 +678,16 @@ function renderSubjGrid(){
 }
 function studyLog(subjId,type,btn){
   if(!state.studyLog[subjId]) state.studyLog[subjId]={};
-  const wasToday=state.studyLog[subjId][type]===today();
-  if(wasToday){ delete state.studyLog[subjId][type]; showToast('記録を取り消しました'); }
-  else{
-    state.studyLog[subjId][type]=today();
+  if(!state.studyLog[subjId][type]) state.studyLog[subjId][type]={current:null,prev:null};
+  const entry=state.studyLog[subjId][type];
+  const wasToday=entry.current===today();
+  if(wasToday){
+    entry.current=entry.prev||null;
+    entry.prev=null;
+    showToast('記録を取り消しました');
+  } else {
+    entry.prev=entry.current;
+    entry.current=today();
     showToast(subjById(subjId).name+(type==='text'?' テキスト読んだ！📖':' 問題解いた！✏️'));
   }
   saveState(); renderSubjGrid();
