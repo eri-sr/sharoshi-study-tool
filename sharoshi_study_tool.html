@@ -586,7 +586,7 @@ function renderHelp(){
           <div class="help-step-num">4</div>
           <div class="help-step-body">
             <div class="help-step-title">できない理由を選ぶ</div>
-            <div class="help-step-desc">4つのボタンから選択（複数OK）。</div>
+            <div class="help-step-desc">6つのボタンから選択（複数OK）。</div>
           </div>
         </div>
         <div class="reason-mock">
@@ -732,9 +732,9 @@ function renderPhaseBar(){
 }
 
 // ========== 科目ボタン ==========
-// studyLog構造: {subjId: {text:'2025-04-05', prob:'2025-04-03'}}
+// studyLog構造: {subjId: {text:{current:'2026-04-09', prev:'2026-04-06'}, prob:{...}}}
 function getLog(subjId, type){
-  return (state.studyLog[subjId]||{})[type]||null;
+  return (state.studyLog[subjId]||{})[type]?.current||null;
 }
 function daysAgoLabel(dateStr){
   const ago=daysAgo(dateStr);
@@ -768,13 +768,18 @@ function renderSubjGrid(){
 
 function studyLog(subjId, type, btn){
   if(!state.studyLog[subjId]) state.studyLog[subjId]={};
-  const wasToday = state.studyLog[subjId][type]===today();
+  if(!state.studyLog[subjId][type]) state.studyLog[subjId][type]={current:null,prev:null};
+  const entry=state.studyLog[subjId][type];
+  const wasToday=entry.current===today();
   if(wasToday){
-    delete state.studyLog[subjId][type];
+    // 直前の日付に戻す
+    entry.current=entry.prev||null;
+    entry.prev=null;
     showToast('記録を取り消しました');
   } else {
-    state.studyLog[subjId][type]=today();
-    btn.classList.add('done');
+    // 現在値をprevに退避して今日をセット
+    entry.prev=entry.current;
+    entry.current=today();
     showToast(subjById(subjId).name+(type==='text'?' テキスト読んだ！📖':' 問題解いた！✏️'));
   }
   saveState(); renderSubjGrid();
@@ -1073,16 +1078,16 @@ function renderKodan(){
 function injectDummy(){
   const daysBack=n=>{ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
   state.studyLog={
-    roki:   {text:today(),    prob:daysBack(2)},
-    anei:   {text:daysBack(1),prob:daysBack(5)},
-    rosai:  {text:daysBack(3),prob:daysBack(3)},
-    koyo:   {text:today(),    prob:today()},
-    choshu: {text:daysBack(8),prob:daysBack(10)},
-    kenpo:  {text:daysBack(2),prob:daysBack(1)},
-    konen:  {text:daysBack(5),prob:daysBack(7)},
-    kokunen:{text:daysBack(12),prob:daysBack(14)},
-    rouichi:{text:daysBack(1),prob:daysBack(4)},
-    shaichi:{text:daysBack(4),prob:daysBack(6)},
+    roki:   {text:{current:today(),    prev:daysBack(3)}, prob:{current:daysBack(2), prev:daysBack(5)}},
+    anei:   {text:{current:daysBack(1),prev:daysBack(4)}, prob:{current:daysBack(5), prev:null}},
+    rosai:  {text:{current:daysBack(3),prev:null},        prob:{current:daysBack(3), prev:null}},
+    koyo:   {text:{current:today(),    prev:daysBack(2)}, prob:{current:today(),     prev:daysBack(3)}},
+    choshu: {text:{current:daysBack(8),prev:null},        prob:{current:daysBack(10),prev:null}},
+    kenpo:  {text:{current:daysBack(2),prev:null},        prob:{current:daysBack(1), prev:null}},
+    konen:  {text:{current:daysBack(5),prev:null},        prob:{current:daysBack(7), prev:null}},
+    kokunen:{text:{current:daysBack(12),prev:null},       prob:{current:daysBack(14),prev:null}},
+    rouichi:{text:{current:daysBack(1),prev:null},        prob:{current:daysBack(4), prev:null}},
+    shaichi:{text:{current:daysBack(4),prev:null},        prob:{current:daysBack(6), prev:null}},
   };
   state.futoCards=[
     {id:'f1',subjId:'kenpo',content:'傷病手当金の支給期間\n支給開始日から通算1年6ヶ月',next:'「支給開始日」を「初診日」と覚えていた。10日→✕、起算点がずれると全部ズレる',reasons:['r1','r2'],reasonCustom:'',keywords:['待期']},
