@@ -360,7 +360,24 @@ let state = {
 };
 
 const STORAGE_KEY = 'study_tool_universal_v1';
-function loadState(){ const s=localStorage.getItem(STORAGE_KEY); if(s){ try{ state={...state,...JSON.parse(s)}; }catch(e){} } }
+function loadState(){
+  const s=localStorage.getItem(STORAGE_KEY);
+  if(s){ try{ state={...state,...JSON.parse(s)}; }catch(e){} }
+  // 古い形式（string）→ 新形式（{current, prev}）に変換
+  if(state.studyLog){
+    Object.keys(state.studyLog).forEach(subjId=>{
+      const log=state.studyLog[subjId];
+      if(!log) return;
+      ['text','prob'].forEach(type=>{
+        if(typeof log[type]==='string'){
+          log[type]={current:log[type], prev:null};
+        } else if(!log[type]){
+          log[type]={current:null, prev:null};
+        }
+      });
+    });
+  }
+}
 function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
 function today(){ return new Date().toISOString().split('T')[0]; }
 function daysAgo(d){ if(!d)return null; const a=new Date(d),b=new Date(); a.setHours(0,0,0,0);b.setHours(0,0,0,0); return Math.floor((b-a)/86400000); }
