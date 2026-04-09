@@ -391,6 +391,20 @@ let state = {
 function loadState(){
   const s = localStorage.getItem('sharoshi_v4');
   if(s){ try{ state={...state,...JSON.parse(s)}; }catch(e){} }
+  // 古い形式（string）→ 新形式（{current, prev}）に変換
+  if(state.studyLog){
+    Object.keys(state.studyLog).forEach(subjId=>{
+      const log=state.studyLog[subjId];
+      if(!log) return;
+      ['text','prob'].forEach(type=>{
+        if(typeof log[type]==='string'){
+          log[type]={current:log[type], prev:null};
+        } else if(!log[type]){
+          log[type]={current:null, prev:null};
+        }
+      });
+    });
+  }
 }
 function saveState(){ localStorage.setItem('sharoshi_v4',JSON.stringify(state)); }
 function today(){ return new Date().toISOString().split('T')[0]; }
