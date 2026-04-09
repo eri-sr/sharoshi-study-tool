@@ -324,6 +324,21 @@ textarea.inp{resize:none;}
   </button>
 </nav>
 
+<!-- モーダル: 一言メッセージ編集 -->
+<div class="modal-bg" id="modalMotiv">
+  <div class="modal">
+    <div class="modal-ttl">✊ 一言メッセージを編集</div>
+    <div class="form-row">
+      <label class="form-label">メッセージ（改行OK）</label>
+      <textarea class="inp" id="motivInput" rows="3" placeholder="例：合格するぞ✊"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeMotivModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveMotiv()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- モーダル: 論点カード追加/編集 -->
 <div class="modal-bg" id="modalFuto">
   <div class="modal">
@@ -728,16 +743,25 @@ function renderHelp(){
 
 function loadMotiv(){
   const msg=state.motivMsg||'合格するぞ✊';
-  document.getElementById('motivMsg').textContent=msg;
+  document.getElementById('motivMsg').innerHTML=escHtml(msg);
 }
 function editMotiv(){
   const current=state.motivMsg||'合格するぞ✊';
-  const newMsg=prompt('一言メッセージを入力してください',current);
-  if(newMsg===null) return;
-  state.motivMsg=newMsg.trim()||'合格するぞ✊';
+  document.getElementById('motivInput').value=current;
+  document.getElementById('modalMotiv').classList.add('on');
+}
+function closeMotivModal(){
+  document.getElementById('modalMotiv').classList.remove('on');
+}
+function saveMotiv(){
+  const newMsg=document.getElementById('motivInput').value.trim()||'合格するぞ✊';
+  state.motivMsg=newMsg;
   saveState();
   loadMotiv();
+  closeMotivModal();
+  showToast('メッセージを保存しました💾');
 }
+document.getElementById('modalMotiv').addEventListener('click',function(e){ if(e.target===this)closeMotivModal(); });
 
 // ========== ヘッダー・フェーズ ==========
 function renderHeader(){
