@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>社労士 学習管理</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Kaisei+Decol:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Kaisei+Decol:wght@700&family=Zen+Maru+Gothic:wght@700&display=swap');
 :root {
   --bg:#f5f3ee; --surface:#fff; --border:#e5dfd4; --text:#28231e;
   --sub:#9e9890; --accent:#d44d28; --green:#3a9e6e;
@@ -265,16 +265,22 @@ textarea.inp{resize:none;}
 
 <!-- ホーム -->
 <div class="page on" id="pageHome">
-  <div class="card">
-    <div class="countdown">
-      <div class="cd-num">あと <span id="cdNum" style="font-size:56px;">—</span> 日</div>
-      <div class="cd-date">2026年8月23日（日）試験</div>
+  <div class="card" style="padding:10px 16px;">
+    <div class="countdown" style="padding:10px 0 8px;">
+      <div style="text-align:center;">
+      <div id="motivMsg" onclick="editMotiv()"
+        style="font-family:'Zen Maru Gothic',sans-serif;font-size:18px;font-weight:700;color:#fff;background:#e8908a;margin-bottom:8px;cursor:pointer;line-height:1.2;letter-spacing:.05em;display:inline-block;padding:2px 16px;border-radius:20px;">
+        合格するぞ✊
+      </div>
+      </div>
+      <div class="cd-num" style="font-family:'Kaisei Decol',serif;font-weight:700;font-size:32px;">あと <span id="cdNum" style="font-size:56px;">—</span> 日</div>
+      <div class="cd-date" style="margin-top:4px;">2026年8月23日（日）試験</div>
     </div>
-    <div class="phase-labels">
+    <div class="phase-labels" style="margin-top:6px;">
       <span>今日</span><span>基礎固め</span><span>横断強化</span><span>総仕上げ</span><span>試験</span>
     </div>
     <div class="phasebar" id="phaseBar"></div>
-    <div class="phase-now" id="phaseNow"></div>
+    <div class="phase-now" id="phaseNow" style="margin-top:4px;"></div>
   </div>
   <div class="card">
     <div class="card-ttl">📖 やったことをタップ！</div>
@@ -720,6 +726,19 @@ function renderHelp(){
   `;
 }
 
+function loadMotiv(){
+  const msg=state.motivMsg||'合格するぞ✊';
+  document.getElementById('motivMsg').textContent=msg;
+}
+function editMotiv(){
+  const current=state.motivMsg||'合格するぞ✊';
+  const newMsg=prompt('一言メッセージを入力してください',current);
+  if(newMsg===null) return;
+  state.motivMsg=newMsg.trim()||'合格するぞ✊';
+  saveState();
+  loadMotiv();
+}
+
 // ========== ヘッダー・フェーズ ==========
 function renderHeader(){
   const d=daysLeft();
@@ -1140,6 +1159,7 @@ if(!state.studyLog||Object.keys(state.studyLog).length===0) injectDummy();
 renderHeader();
 renderPhaseBar();
 renderSubjGrid();
+loadMotiv();
 setInterval(()=>{ renderHeader(); renderPhaseBar(); },60000);
 </script>
 </body>
