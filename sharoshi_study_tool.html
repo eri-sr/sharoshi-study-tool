@@ -277,7 +277,7 @@ textarea.inp{resize:none;}
       <div class="cd-date" style="margin-top:4px;">2026年8月23日（日）試験</div>
     </div>
     <div class="phase-labels" style="margin-top:6px;">
-      <span>今日</span><span>基礎固め</span><span>横断強化</span><span>総仕上げ</span><span>試験</span>
+      <span>今日</span><span>基礎固め</span><span>全科目演習</span><span>総仕上げ</span><span>試験</span>
     </div>
     <div class="phasebar" id="phaseBar"></div>
     <div class="phase-now" id="phaseNow" style="margin-top:4px;"></div>
@@ -517,12 +517,12 @@ function renderHelp(){
               <div style="width:15%;background:#d44d28;"></div>
             </div>
             <div style="font-size:10px;color:var(--sub);margin-top:4px;display:flex;justify-content:space-between;">
-              <span>基礎固め</span><span>横断強化</span><span>総仕上げ</span>
+              <span>基礎固め</span><span>全科目演習</span><span>総仕上げ</span>
             </div>
           </div>
           <div style="font-size:11px;color:var(--accent);font-weight:700;margin-top:8px;">📗 今は「基礎固め」フェーズ</div>
         </div>
-        <p>試験まであと何日かが一目でわかります。フェーズバーは「基礎固め→横断強化→総仕上げ」の3段階で、今どのフェーズかを表示します。</p>
+        <p>試験まであと何日かが一目でわかります。フェーズバーは「基礎固め→全科目演習→総仕上げ」の3段階で、今どのフェーズかを表示します。</p>
         <p>上の「合格するぞ✊」はタップすると自分だけの一言メッセージに変えられます。改行もできます。</p>
         <div class="help-tip">自分だけの言葉を入れて、毎日開くたびにモチベアップ！</div>
       </div>
@@ -777,8 +777,8 @@ function renderHeader(){
 function renderPhaseBar(){
   const d=daysLeft(), total=140;
   const phases=[
-    {name:'基礎固め',days:Math.max(0,d-70),color:'#5dbf85'},
-    {name:'横断強化',days:Math.max(0,Math.min(d,70)-28),color:'#42b0d8'},
+    {name:'基礎固め',days:Math.max(0,d-99),color:'#5dbf85'},
+    {name:'全科目演習',days:Math.max(0,Math.min(d,99)-28),color:'#42b0d8'},
     {name:'総仕上げ',days:Math.min(d,28),color:'#d44d28'},
   ];
   document.getElementById('phaseBar').innerHTML=phases.map(p=>{
@@ -786,8 +786,8 @@ function renderPhaseBar(){
     return `<div class="ps" style="width:${w}%;background:${p.color};">${w>10?p.name:''}</div>`;
   }).join('');
   const n=document.getElementById('phaseNow');
-  if(d>70) n.textContent='📗 今は「基礎固め」フェーズ';
-  else if(d>28) n.textContent='📘 今は「横断強化」フェーズ';
+  if(d>99) n.textContent='📗 今は「基礎固め」フェーズ';
+  else if(d>28) n.textContent='📘 今は「全科目演習」フェーズ';
   else if(d>0) n.textContent='🔥 今は「総仕上げ」フェーズ！';
   else n.textContent='🎌 試験日！';
 }
