@@ -164,6 +164,13 @@ textarea.inp{resize:none;}
 .kodan-futo-next{font-size:11px;color:var(--sub);margin-top:5px;line-height:1.4;}
 .kodan-futo-edit{flex-shrink:0;background:none;border:none;font-size:16px;
   padding:0 10px;cursor:pointer;color:var(--sub);align-self:center;}
+.kodan-memo-wrap{padding:8px 12px;background:var(--bg);border-top:1px solid var(--border);}
+.kodan-memo-label{font-size:10px;color:var(--sub);font-weight:700;margin-bottom:4px;letter-spacing:.06em;}
+.kodan-memo{width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:8px 10px;font-family:inherit;font-size:12px;color:var(--text);
+  background:var(--surface);outline:none;resize:none;line-height:1.6;
+  transition:border-color .2s;}
+.kodan-memo:focus{border-color:var(--accent);}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;
   display:none;align-items:flex-end;justify-content:center;}
 .modal-bg.on{display:flex;}
@@ -324,6 +331,28 @@ textarea.inp{resize:none;}
   </button>
 </nav>
 
+<!-- モーダル: 横断タブ専用編集 -->
+<div class="modal-bg" id="modalKodanEdit">
+  <div class="modal">
+    <div class="modal-ttl">🔗 横断メモを編集</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:12px;text-align:center;">
+      論点カードには影響しません
+    </div>
+    <div class="form-row">
+      <label class="form-label">内容</label>
+      <textarea class="inp" id="kodanEditContent" rows="3" placeholder="この科目での内容"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">⚠️ ポイント・注意</label>
+      <textarea class="inp" id="kodanEditNext" rows="2" placeholder="混同しやすい点など"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeKodanEditModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveKodanEdit()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- モーダル: 一言メッセージ編集 -->
 <div class="modal-bg" id="modalMotiv">
   <div class="modal">
@@ -405,8 +434,10 @@ const EXAM_DATE = new Date('2026-08-23T09:00:00');
 
 let state = {
   studyLog: {},
-  futoCards: [],   // [{id,subjId,content,next,tags,order}]
-  kodanCards: [],  // [{id,theme,rows:[{subjId,content}]}]
+  futoCards: [],
+  kodanCards: [],
+  kodanCopies: {}, // {cardId: {content, next}} 横断タブ専用コピー
+  kodanMemos: {},
 };
 
 function loadState(){
@@ -695,9 +726,12 @@ function renderHelp(){
       </div>
     </div>
     <div class="help-card">
-      <div class="help-card-head">✏️ 横断タブからカードを編集</div>
+      <div class="help-card-head">✏️ 横断タブで独自に編集できる</div>
       <div class="help-card-body">
-        <p>各行の右端の✏️ボタンをタップすると、その論点カードを直接編集できます。横断タブを見ながら「あ、この書き方わかりにくいな」と思ったらその場で修正OK。</p>
+        <p>各行の右端の✏️ボタンをタップすると、<strong>横断タブ専用の編集画面</strong>が開きます。</p>
+        <p>ここで編集した内容は横断タブだけに反映され、<strong>論点カードタブのカードは変わりません。</strong></p>
+        <p>初回は論点カードの内容がデフォルトで入っているので、横断比較用に書き換えたい部分だけ変えればOKです。</p>
+        <div class="help-tip">「論点カードには詳しく書いて、横断タブには比較しやすい形でまとめる」という使い方がおすすめです！</div>
       </div>
     </div>
   </div>
@@ -1104,12 +1138,15 @@ function renderKodan(){
   }
 
   el.innerHTML=groups.map(([kw, cards])=>{
-    // カードを科目順に並べる
     const sorted=[...cards].sort((a,b)=>
       SUBJECTS.findIndex(s=>s.id===a.subjId) - SUBJECTS.findIndex(s=>s.id===b.subjId)
     );
     const cardHtml=sorted.map(c=>{
       const s=subjById(c.subjId);
+      // 横断コピーがあればそちらを使う、なければ論点カードの内容をデフォルトに
+      const copy=(state.kodanCopies||{})[c.id];
+      const content=copy ? copy.content : c.content;
+      const next=copy ? copy.next : c.next;
       const reasonBadges=(c.reasons||[]).map(rid=>{
         const r=REASONS.find(x=>x.id===rid);
         return r?`<span class="reason-badge" style="background:${r.color};font-size:9px;">${r.icon}</span>`:'';
@@ -1117,11 +1154,11 @@ function renderKodan(){
       return `<div class="kodan-futo-row">
         <div class="kodan-futo-subj" style="background:${s.color};">${s.name}</div>
         <div class="kodan-futo-body">
-          <div class="kodan-futo-content">${escHtml(c.content)}</div>
-          ${c.next?`<div class="kodan-futo-next">⚠️ ${escHtml(c.next)}</div>`:''}
+          <div class="kodan-futo-content">${escHtml(content)}</div>
+          ${next?`<div class="kodan-futo-next">⚠️ ${escHtml(next)}</div>`:''}
           ${reasonBadges?`<div style="margin-top:4px;">${reasonBadges}</div>`:''}
         </div>
-        <button class="kodan-futo-edit" onclick="openFutoModal('${c.id}')">✏️</button>
+        <button class="kodan-futo-edit" onclick="openKodanEditModal('${c.id}')">✏️</button>
       </div>`;
     }).join('');
 
@@ -1133,6 +1170,36 @@ function renderKodan(){
       <div class="kodan-group-cards">${cardHtml}</div>
     </div>`;
   }).join('');
+}
+
+// ========== 横断専用編集 ==========
+let editingKodanCopyId=null;
+function openKodanEditModal(cardId){
+  editingKodanCopyId=cardId;
+  const copy=(state.kodanCopies||{})[cardId];
+  const card=state.futoCards.find(c=>c.id===cardId);
+  // コピーがあればコピーを、なければ論点カードの内容をデフォルト値として表示
+  document.getElementById('kodanEditContent').value=copy ? copy.content : (card?.content||'');
+  document.getElementById('kodanEditNext').value=copy ? copy.next : (card?.next||'');
+  document.getElementById('modalKodanEdit').classList.add('on');
+}
+function closeKodanEditModal(){
+  document.getElementById('modalKodanEdit').classList.remove('on');
+}
+document.getElementById('modalKodanEdit').addEventListener('click',function(e){
+  if(e.target===this)closeKodanEditModal();
+});
+function saveKodanEdit(){
+  if(!editingKodanCopyId)return;
+  if(!state.kodanCopies) state.kodanCopies={};
+  state.kodanCopies[editingKodanCopyId]={
+    content: document.getElementById('kodanEditContent').value.trim(),
+    next: document.getElementById('kodanEditNext').value.trim(),
+  };
+  saveState();
+  closeKodanEditModal();
+  renderKodan();
+  showToast('横断メモを保存しました🔗');
 }
 
 // ========== ダミーデータ ==========
