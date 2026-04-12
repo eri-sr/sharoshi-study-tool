@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>試験勉強管理ツール</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Kaisei+Decol:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Kaisei+Decol:wght@700&family=Zen+Maru+Gothic:wght@700&display=swap');
 :root {
   --bg:#f5f3ee; --surface:#fff; --border:#e5dfd4; --text:#28231e;
   --sub:#9e9890; --accent:#d44d28; --green:#3a9e6e;
@@ -207,16 +207,22 @@ textarea.inp{resize:none;}
 
 <!-- ホーム -->
 <div class="page" id="pageHome">
-  <div class="card">
-    <div class="countdown">
-      <div class="cd-num">あと <span id="cdNum">—</span> 日</div>
-      <div class="cd-date" id="cdDate"></div>
+  <div class="card" style="padding:10px 16px;">
+    <div class="countdown" style="padding:10px 0 8px;">
+      <div style="text-align:center;">
+        <div id="motivMsg" onclick="editMotiv()"
+          style="font-family:'Zen Maru Gothic',sans-serif;font-size:18px;font-weight:700;color:#fff;background:#e8908a;margin-bottom:8px;cursor:pointer;line-height:1.2;letter-spacing:.05em;display:inline-block;padding:2px 16px;border-radius:20px;">
+          合格するぞ✊
+        </div>
+      </div>
+      <div class="cd-num" style="font-family:'Kaisei Decol',serif;font-weight:700;font-size:32px;">あと <span id="cdNum" style="font-size:56px;">—</span> 日</div>
+      <div class="cd-date" id="cdDate" style="margin-top:4px;"></div>
     </div>
-    <div class="phase-labels">
-      <span>今日</span><span>基礎固め</span><span>横断強化</span><span>総仕上げ</span><span>試験</span>
+    <div class="phase-labels" style="margin-top:6px;">
+      <span>今日</span><span>基礎固め</span><span>全科目演習</span><span>総仕上げ</span><span>試験</span>
     </div>
     <div class="phasebar" id="phaseBar"></div>
-    <div class="phase-now" id="phaseNow"></div>
+    <div class="phase-now" id="phaseNow" style="margin-top:4px;"></div>
   </div>
   <div class="card">
     <div class="card-ttl">📖 やったことをタップ！</div>
@@ -252,6 +258,33 @@ textarea.inp{resize:none;}
       <input class="inp" id="settingsExamDate" type="date">
     </div>
     <button class="btn btn-accent mt8" onclick="saveSettings()">💾 保存</button>
+  </div>
+  <div class="card">
+    <div class="card-ttl">📊 フェーズ名と期間の設定</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.7;">学習の3つのフェーズ名と切り替えタイミングを設定できます。</div>
+    <div class="form-row">
+      <label class="form-label">フェーズ1（最初の時期）</label>
+      <input class="inp" id="settingsPhase1" type="text" placeholder="例：基礎固め">
+    </div>
+    <div class="form-row">
+      <label class="form-label">フェーズ2（中間の時期）</label>
+      <input class="inp" id="settingsPhase2" type="text" placeholder="例：全科目演習">
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;color:var(--sub);white-space:nowrap;">フェーズ1→2の切り替え：残り</span>
+        <input class="inp" id="settingsPhaseDay1" type="number" min="1" max="365" style="width:70px;text-align:center;" placeholder="70">
+        <span style="font-size:12px;color:var(--sub);">日</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">フェーズ3（試験直前）</label>
+      <input class="inp" id="settingsPhase3" type="text" placeholder="例：総仕上げ">
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;color:var(--sub);white-space:nowrap;">フェーズ2→3の切り替え：残り</span>
+        <input class="inp" id="settingsPhaseDay2" type="number" min="1" max="365" style="width:70px;text-align:center;" placeholder="28">
+        <span style="font-size:12px;color:var(--sub);">日</span>
+      </div>
+    </div>
+    <button class="btn btn-accent mt8" onclick="savePhases()">💾 フェーズを保存</button>
   </div>
   <div class="card">
     <div class="card-ttl">📚 科目の管理</div>
@@ -332,6 +365,41 @@ textarea.inp{resize:none;}
   </div>
 </div>
 
+<!-- モーダル: 一言メッセージ編集 -->
+<div class="modal-bg" id="modalMotivU">
+  <div class="modal">
+    <div class="modal-ttl">✊ 一言メッセージを編集</div>
+    <div class="form-row">
+      <label class="form-label">メッセージ（改行OK）</label>
+      <textarea class="inp" id="motivInputU" rows="3" placeholder="例：合格するぞ✊"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeMotivModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveMotiv()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 横断専用編集 -->
+<div class="modal-bg" id="modalKodanEditU">
+  <div class="modal">
+    <div class="modal-ttl">🔗 横断メモを編集</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:12px;text-align:center;">論点カードには影響しません</div>
+    <div class="form-row">
+      <label class="form-label">内容</label>
+      <textarea class="inp" id="kodanEditContentU" rows="3" placeholder="この科目での内容"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">⚠️ ポイント・注意</label>
+      <textarea class="inp" id="kodanEditNextU" rows="2" placeholder="混同しやすい点など"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeKodanEditModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveKodanEdit()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -354,9 +422,11 @@ const REASONS = [
 let state = {
   examName: '',
   examDate: '',
-  subjects: [],   // [{id,name,color}]
-  studyLog: {},   // {subjId: {text:'2026-04-01', prob:'2026-04-01'}}
+  subjects: [],
+  studyLog: {},
   futoCards: [],
+  kodanCopies: {},
+  motivMsg: '',
 };
 
 const STORAGE_KEY = 'study_tool_universal_v1';
@@ -447,7 +517,10 @@ function initApp(){
   renderHeader();
   renderPhaseBar();
   renderSubjGrid();
-  renderSettingsForm();
+  loadMotiv();
+  // モーダルイベント
+  document.getElementById('modalMotivU').addEventListener('click',function(e){ if(e.target===this)closeMotivModal(); });
+  document.getElementById('modalKodanEditU').addEventListener('click',function(e){ if(e.target===this)closeKodanEditModal(); });
 }
 
 // ===== ナビ =====
@@ -609,8 +682,27 @@ function renderHelp(){
     <div class="help-card">
       <div class="help-card-body">
         <p>論点カードに同じ横断キーワードをつけると、このタブで自動的にグループとして並びます。科目ごとの違いが縦に並ぶので<strong>混同しやすい論点を一気に比較</strong>できます。</p>
-        <p>各行の右端の✏️ボタンからカードを直接編集できます。</p>
-        <div class="help-tip">横断タブは論点カードを育てるほど充実します！</div>
+        <p>各行の右端の✏️ボタンをタップすると<strong>横断タブ専用の編集画面</strong>が開きます。ここで編集した内容は横断タブだけに反映され、<strong>論点カードタブのカードは変わりません。</strong></p>
+        <div class="help-tip">「論点カードには詳しく書いて、横断タブには比較しやすい形でまとめる」という使い方がおすすめです！</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">⚙️</div>
+      <div class="help-section-title">設定タブでできること</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-body">
+        <p>設定タブではいつでも以下を変更できます：</p>
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9;color:var(--sub);">
+          ・試験名・試験日の変更<br>
+          ・フェーズ名と切り替えタイミングの変更<br>
+          ・科目の追加・削除・色変更<br>
+          ・すべてのデータをリセット
+        </div>
+        <div class="help-tip">フェーズの切り替えは「残り○日」で設定します。例：残り70日でフェーズ2に、残り28日でフェーズ3に切り替え。</div>
       </div>
     </div>
   </div>
@@ -642,25 +734,51 @@ function renderHeader(){
   const d=daysLeft();
   document.getElementById('cdNum').textContent=d;
   document.getElementById('hdrDays').textContent=d+'日';
-  document.getElementById('hdrTitle').textContent='📚 '+( state.examName||'勉強管理');
+  document.getElementById('hdrTitle').textContent='📚 '+(state.examName||'勉強管理')+' 学習管理';
   document.getElementById('cdDate').textContent=fmtDate(state.examDate)+(state.examDate?' 試験':'');
+  loadMotiv();
 }
 function renderPhaseBar(){
   const d=daysLeft(),total=140;
+  const p1=state.phases?.[0]||'基礎固め';
+  const p2=state.phases?.[1]||'全科目演習';
+  const p3=state.phases?.[2]||'総仕上げ';
+  const d1=state.phaseDays?.[0]||70;
+  const d2=state.phaseDays?.[1]||28;
   const phases=[
-    {name:'基礎固め',days:Math.max(0,d-70),color:'#5dbf85'},
-    {name:'横断強化',days:Math.max(0,Math.min(d,70)-28),color:'#42b0d8'},
-    {name:'総仕上げ',days:Math.min(d,28),color:'#d44d28'},
+    {name:p1,days:Math.max(0,d-d1),color:'#5dbf85'},
+    {name:p2,days:Math.max(0,Math.min(d,d1)-d2),color:'#42b0d8'},
+    {name:p3,days:Math.min(d,d2),color:'#d44d28'},
   ];
   document.getElementById('phaseBar').innerHTML=phases.map(p=>{
     const w=Math.round(p.days/total*100);
     return `<div class="ps" style="width:${w}%;background:${p.color};">${w>10?p.name:''}</div>`;
   }).join('');
   const n=document.getElementById('phaseNow');
-  if(d>70) n.textContent='📗 今は「基礎固め」フェーズ';
-  else if(d>28) n.textContent='📘 今は「横断強化」フェーズ';
-  else if(d>0) n.textContent='🔥 今は「総仕上げ」フェーズ！';
+  if(d>d1) n.textContent=`📗 今は「${p1}」フェーズ`;
+  else if(d>d2) n.textContent=`📘 今は「${p2}」フェーズ`;
+  else if(d>0) n.textContent=`🔥 今は「${p3}」フェーズ！`;
   else n.textContent='🎌 試験日！';
+}
+
+// ===== 一言メッセージ =====
+function loadMotiv(){
+  const el=document.getElementById('motivMsg');
+  if(!el)return;
+  const msg=state.motivMsg||'合格するぞ✊';
+  el.innerHTML=msg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function editMotiv(){
+  document.getElementById('motivInputU').value=state.motivMsg||'合格するぞ✊';
+  document.getElementById('modalMotivU').classList.add('on');
+}
+function closeMotivModal(){
+  document.getElementById('modalMotivU').classList.remove('on');
+}
+function saveMotiv(){
+  state.motivMsg=document.getElementById('motivInputU').value.trim()||'合格するぞ✊';
+  saveState(); loadMotiv(); closeMotivModal();
+  showToast('メッセージを保存しました💾');
 }
 
 // ===== 科目ボタン =====
@@ -925,15 +1043,18 @@ function renderKodan(){
     const sorted=[...cards].sort((a,b)=>state.subjects.findIndex(s=>s.id===a.subjId)-state.subjects.findIndex(s=>s.id===b.subjId));
     const cardHtml=sorted.map(c=>{
       const s=subjById(c.subjId);
+      const copy=(state.kodanCopies||{})[c.id];
+      const content=copy ? copy.content : c.content;
+      const next=copy ? copy.next : c.next;
       const rb=(c.reasons||[]).map(rid=>{const r=REASONS.find(x=>x.id===rid);return r?`<span class="reason-badge" style="background:${r.color};font-size:9px;">${r.icon}</span>`:''}).join('');
       return `<div class="kodan-futo-row">
         <div class="kodan-futo-subj" style="background:${s.color};">${s.name}</div>
         <div class="kodan-futo-body">
-          <div class="kodan-futo-content">${escHtml(c.content)}</div>
-          ${c.next?`<div class="kodan-futo-next">⚠️ ${escHtml(c.next)}</div>`:''}
+          <div class="kodan-futo-content">${escHtml(content)}</div>
+          ${next?`<div class="kodan-futo-next">⚠️ ${escHtml(next)}</div>`:''}
           ${rb?`<div style="margin-top:4px;">${rb}</div>`:''}
         </div>
-        <button class="kodan-futo-edit" onclick="openFutoModal('${c.id}')">✏️</button>
+        <button class="kodan-futo-edit" onclick="openKodanEditModal('${c.id}')">✏️</button>
       </div>`;
     }).join('');
     return `<div class="kodan-group-card">
@@ -946,13 +1067,53 @@ function renderKodan(){
   }).join('');
 }
 
+// ===== 横断専用編集 =====
+let editingKodanCopyId=null;
+function openKodanEditModal(cardId){
+  editingKodanCopyId=cardId;
+  const copy=(state.kodanCopies||{})[cardId];
+  const card=state.futoCards.find(c=>c.id===cardId);
+  document.getElementById('kodanEditContentU').value=copy ? copy.content : (card?.content||'');
+  document.getElementById('kodanEditNextU').value=copy ? copy.next : (card?.next||'');
+  document.getElementById('modalKodanEditU').classList.add('on');
+}
+function closeKodanEditModal(){
+  document.getElementById('modalKodanEditU').classList.remove('on');
+}
+function saveKodanEdit(){
+  if(!editingKodanCopyId)return;
+  if(!state.kodanCopies) state.kodanCopies={};
+  state.kodanCopies[editingKodanCopyId]={
+    content: document.getElementById('kodanEditContentU').value.trim(),
+    next: document.getElementById('kodanEditNextU').value.trim(),
+  };
+  saveState(); closeKodanEditModal(); renderKodan();
+  showToast('横断メモを保存しました🔗');
+}
+
 // ===== 設定タブ =====
 let settingsSubjects=[];
 function renderSettingsForm(){
   document.getElementById('settingsExamName').value=state.examName||'';
   document.getElementById('settingsExamDate').value=state.examDate||'';
+  document.getElementById('settingsPhase1').value=state.phases?.[0]||'基礎固め';
+  document.getElementById('settingsPhase2').value=state.phases?.[1]||'全科目演習';
+  document.getElementById('settingsPhase3').value=state.phases?.[2]||'総仕上げ';
+  document.getElementById('settingsPhaseDay1').value=state.phaseDays?.[0]||70;
+  document.getElementById('settingsPhaseDay2').value=state.phaseDays?.[1]||28;
   settingsSubjects=state.subjects.map(s=>({...s}));
   renderSettingsSubjList();
+}
+function savePhases(){
+  const p1=document.getElementById('settingsPhase1').value.trim()||'基礎固め';
+  const p2=document.getElementById('settingsPhase2').value.trim()||'全科目演習';
+  const p3=document.getElementById('settingsPhase3').value.trim()||'総仕上げ';
+  const d1=parseInt(document.getElementById('settingsPhaseDay1').value)||70;
+  const d2=parseInt(document.getElementById('settingsPhaseDay2').value)||28;
+  state.phases=[p1,p2,p3];
+  state.phaseDays=[d1,d2];
+  saveState(); renderPhaseBar();
+  showToast('フェーズを保存しました💾');
 }
 function renderSettingsSubjList(){
   document.getElementById('settingsSubjList').innerHTML=settingsSubjects.map((s,i)=>`
