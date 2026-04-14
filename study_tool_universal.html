@@ -294,8 +294,16 @@ textarea.inp{resize:none;}
   </div>
   <div class="card">
     <div class="card-ttl">🗑️ データのリセット</div>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;line-height:1.7;">論点カードや学習記録をすべて削除して最初からやり直します。</p>
     <p style="font-size:12px;color:#e74c3c;margin-bottom:12px;">⚠️ 削除したデータは元に戻せません。</p>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px;">📖 学習記録だけリセット（論点カードは残る）</p>
+    <button onclick="resetStudyLog()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
+      📖 学習記録をリセットする
+    </button>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px;">📌 論点カードだけリセット（学習記録は残る）</p>
+    <button onclick="resetFutoCards()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
+      📌 論点カードをリセットする
+    </button>
+    <p style="font-size:13px;color:var(--sub);margin-bottom:8px;">🗑️ すべてリセット</p>
     <button onclick="resetAllData()" style="width:100%;padding:12px;background:none;border:2px solid #e74c3c;border-radius:12px;color:#e74c3c;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">
       🗑️ すべてのデータをリセットする
     </button>
@@ -1176,6 +1184,18 @@ function selectColor(color){
 }
 
 // ===== リセット =====
+function resetStudyLog(){
+  if(!confirm('学習記録をリセットしますか？\n論点カードは残ります。\nこの操作は元に戻せません。'))return;
+  state.studyLog={};
+  saveState(); renderSubjGrid();
+  showToast('学習記録をリセットしました');
+}
+function resetFutoCards(){
+  if(!confirm('論点カードをすべて削除しますか？\n学習記録は残ります。\nこの操作は元に戻せません。'))return;
+  state.futoCards=[]; state.kodanCopies={};
+  saveState();
+  showToast('論点カードをリセットしました');
+}
 function resetAllData(){
   if(!confirm('すべてのデータを削除して最初からやり直しますか？\nこの操作は元に戻せません。'))return;
   localStorage.removeItem(STORAGE_KEY);
