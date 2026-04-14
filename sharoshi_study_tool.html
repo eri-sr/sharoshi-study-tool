@@ -459,8 +459,20 @@ function loadState(){
   }
 }
 function saveState(){ localStorage.setItem('sharoshi_v4',JSON.stringify(state)); }
-function today(){ return new Date().toISOString().split('T')[0]; }
-function daysAgo(d){ if(!d)return null; const a=new Date(d),b=new Date(); a.setHours(0,0,0,0);b.setHours(0,0,0,0); return Math.floor((b-a)/86400000); }
+function today(){
+  const d=new Date();
+  d.setHours(d.getHours()+9); // JST補正（UTC+9）
+  return d.toISOString().split('T')[0];
+}
+function daysAgo(dateStr){
+  if(!dateStr)return null;
+  const now=new Date();
+  now.setHours(now.getHours()+9);
+  const today=now.toISOString().split('T')[0];
+  const a=new Date(dateStr+'T00:00:00+09:00');
+  const b=new Date(today+'T00:00:00+09:00');
+  return Math.floor((b-a)/86400000);
+}
 function daysLeft(){ const n=new Date(),e=new Date(EXAM_DATE); n.setHours(0,0,0,0);e.setHours(0,0,0,0); return Math.max(0,Math.floor((e-n)/86400000)); }
 function subjById(id){ return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0]; }
 function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
