@@ -293,6 +293,16 @@ textarea.inp{resize:none;}
     <button class="btn btn-accent mt8" onclick="saveSubjects()">💾 科目を保存</button>
   </div>
   <div class="card">
+    <div class="card-ttl">📲 PC・スマホのデータ同期</div>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7;">別の端末（PCとスマホなど）にデータを移すときは、まず「エクスポート」で同期コードをコピーし、移行先の端末で「インポート」してください。</p>
+    <button onclick="openExportModal()" style="width:100%;padding:12px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:10px;">
+      📤 データをエクスポート（同期コードを生成）
+    </button>
+    <button onclick="openImportModal()" style="width:100%;padding:12px;background:none;border:2px solid var(--accent);border-radius:12px;color:var(--accent);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">
+      📥 データをインポート（同期コードを貼り付け）
+    </button>
+  </div>
+  <div class="card">
     <div class="card-ttl">🗑️ データのリセット</div>
     <p style="font-size:12px;color:#e74c3c;margin-bottom:12px;">⚠️ 削除したデータは元に戻せません。</p>
     <p style="font-size:13px;color:var(--sub);margin-bottom:8px;">📖 学習記録だけリセット（論点カードは残る）</p>
@@ -404,6 +414,33 @@ textarea.inp{resize:none;}
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeKodanEditModal()">キャンセル</button>
       <button class="btn btn-accent" onclick="saveKodanEdit()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: データエクスポート -->
+<div class="modal-bg" id="modalExport">
+  <div class="modal">
+    <div class="modal-ttl">📤 データをエクスポート</div>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7;">以下の同期コードをコピーして、別の端末でインポートしてください。</p>
+    <textarea class="inp" id="exportCodeArea" rows="6" readonly style="font-size:11px;word-break:break-all;font-family:monospace;"></textarea>
+    <div class="modal-btns" style="margin-top:12px;">
+      <button class="btn btn-ghost" onclick="closeExportModal()">閉じる</button>
+      <button class="btn btn-accent" id="copyExportBtn" onclick="copyExportCode()">📋 コピー</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: データインポート -->
+<div class="modal-bg" id="modalImport">
+  <div class="modal">
+    <div class="modal-ttl">📥 データをインポート</div>
+    <p style="font-size:12px;color:#e74c3c;margin-bottom:8px;line-height:1.7;">⚠️ インポートすると現在のデータは上書きされます。</p>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7;">別の端末でエクスポートした同期コードを貼り付けてください。</p>
+    <textarea class="inp" id="importCodeArea" rows="6" placeholder="同期コードをここに貼り付け..." style="font-size:11px;word-break:break-all;font-family:monospace;"></textarea>
+    <div class="modal-btns" style="margin-top:12px;">
+      <button class="btn btn-ghost" onclick="closeImportModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="importData()">📥 インポート実行</button>
     </div>
   </div>
 </div>
@@ -1194,6 +1231,66 @@ function selectColor(color){
   }
   closeColorModal();
 }
+
+// ===== PC・スマホ同期（エクスポート/インポート） =====
+function openExportModal(){
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  document.getElementById('exportCodeArea').value = code;
+  document.getElementById('copyExportBtn').textContent = '📋 コピー';
+  document.getElementById('modalExport').classList.add('on');
+}
+function closeExportModal(){
+  document.getElementById('modalExport').classList.remove('on');
+}
+function copyExportCode(){
+  const area = document.getElementById('exportCodeArea');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(area.value).then(()=>{
+      document.getElementById('copyExportBtn').textContent = '✅ コピー済み';
+      showToast('同期コードをコピーしました📋');
+    }).catch(()=>{ fallbackCopy(area); });
+  } else {
+    fallbackCopy(area);
+  }
+}
+function fallbackCopy(area){
+  area.select();
+  area.setSelectionRange(0, area.value.length);
+  try{
+    document.execCommand('copy');
+    document.getElementById('copyExportBtn').textContent = '✅ コピー済み';
+    showToast('同期コードをコピーしました📋');
+  }catch(e){
+    showToast('コピーに失敗しました。手動でコピーしてください');
+  }
+}
+function openImportModal(){
+  document.getElementById('importCodeArea').value = '';
+  document.getElementById('modalImport').classList.add('on');
+}
+function closeImportModal(){
+  document.getElementById('modalImport').classList.remove('on');
+}
+function importData(){
+  const code = document.getElementById('importCodeArea').value.trim();
+  if(!code){ showToast('同期コードを貼り付けてください'); return; }
+  try{
+    const parsed = JSON.parse(decodeURIComponent(escape(atob(code))));
+    if(!parsed.examName || !parsed.examDate || !Array.isArray(parsed.subjects)){
+      throw new Error('invalid');
+    }
+    if(!confirm('データをインポートしますか？\n現在のデータは上書きされます。\nこの操作は元に戻せません。'))return;
+    state = {...state, ...parsed};
+    saveState();
+    closeImportModal();
+    showToast('データをインポートしました📥');
+    setTimeout(()=>location.reload(), 1200);
+  }catch(e){
+    showToast('同期コードが正しくありません');
+  }
+}
+document.getElementById('modalExport').addEventListener('click',function(e){ if(e.target===this)closeExportModal(); });
+document.getElementById('modalImport').addEventListener('click',function(e){ if(e.target===this)closeImportModal(); });
 
 // ===== リセット =====
 function resetStudyLog(){
