@@ -787,7 +787,9 @@ function renderPhaseBar(){
     return `<div class="ps" style="width:${w}%;background:${p.color};">${w>10?p.name:''}</div>`;
   }).join('');
   const n=document.getElementById('phaseNow');
-  if(d>d1) n.textContent=`📗 今は「${p1}」フェーズ`;
+  if(d<=3){
+    n.innerHTML='<div style="text-align:center;"><span style="font-family:\'Zen Maru Gothic\',sans-serif;font-size:18px;font-weight:700;color:#fff;background:#e8908a;padding:2px 16px;border-radius:20px;display:inline-block;line-height:1.6;">今まで頑張った自分を信じて。きっと合格🍀</span></div>';
+  } else if(d>d1) n.textContent=`📗 今は「${p1}」フェーズ`;
   else if(d>d2) n.textContent=`📘 今は「${p2}」フェーズ`;
   else if(d>0) n.textContent=`🔥 今は「${p3}」フェーズ！`;
   else n.textContent='🎌 試験日！';
