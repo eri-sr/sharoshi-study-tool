@@ -195,6 +195,12 @@ textarea.inp{resize:none;}
   transition:all .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+.search-wrap{margin-bottom:10px;}
+.search-inp{width:100%;border:1.5px solid var(--border);border-radius:24px;
+  padding:10px 16px;font-family:inherit;font-size:13px;color:var(--text);
+  background:var(--surface);outline:none;transition:border-color .2s;}
+.search-inp:focus{border-color:var(--accent);}
+
 .empty{text-align:center;padding:36px 16px;color:var(--sub);font-size:13px;line-height:1.9;}
 .mt8{margin-top:8px;} .mt12{margin-top:12px;}
 
@@ -297,6 +303,9 @@ textarea.inp{resize:none;}
 
 <!-- 論点カード -->
 <div class="page" id="pageFuto">
+  <div class="search-wrap">
+    <input class="search-inp" id="futoSearch" type="text" placeholder="🔍 キーワードで検索…" oninput="renderFutoCards()">
+  </div>
   <div class="filter-row" id="futoFilter"></div>
   <button class="add-futo-btn" onclick="openFutoModal()">＋ 論点カードを追加</button>
   <div class="futo-grid" id="futoGrid"></div>
@@ -304,6 +313,9 @@ textarea.inp{resize:none;}
 
 <!-- 横断ビュー -->
 <div class="page" id="pageKodan">
+  <div class="search-wrap">
+    <input class="search-inp" id="kodanSearch" type="text" placeholder="🔍 キーワードで検索…" oninput="renderKodan()">
+  </div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7;">
     🔗 論点カードに「横断キーワード」をつけると、同じキーワードを持つカードが自動でグループになります。
   </div>
@@ -930,9 +942,17 @@ function setFutoReasonFilter(id){ futoReasonFilter=id; renderFutoFilter(); rende
 
 function renderFutoCards(){
   const grid=document.getElementById('futoGrid');
+  const q=(document.getElementById('futoSearch')?.value||'').trim().toLowerCase();
   let cards=[...state.futoCards];
   if(futoFilter!=='all') cards=cards.filter(c=>c.subjId===futoFilter);
   if(futoReasonFilter!=='all') cards=cards.filter(c=>(c.reasons||[]).includes(futoReasonFilter));
+  if(q) cards=cards.filter(c=>
+    (c.content||'').toLowerCase().includes(q)||
+    (c.next||'').toLowerCase().includes(q)||
+    (c.keywords||[]).some(k=>k.toLowerCase().includes(q))||
+    (c.reasonCustom||'').toLowerCase().includes(q)||
+    subjById(c.subjId).name.includes(q)
+  );
   if(!cards.length){
     grid.innerHTML='<div class="empty" style="grid-column:1/-1">まだ論点カードがありません。<br>＋ボタンで追加してみよう！</div>';
     return;
@@ -1142,9 +1162,9 @@ function deleteFutoFromModal(){
 // ========== 横断ビュー（自動グループ化） ==========
 function renderKodan(){
   const el=document.getElementById('kodanList');
+  const q=(document.getElementById('kodanSearch')?.value||'').trim().toLowerCase();
 
-  // キーワードを持つカードを収集してグループ化
-  const groupMap={}; // keyword -> [card, ...]
+  const groupMap={};
   state.futoCards.forEach(c=>{
     (c.keywords||[]).forEach(kw=>{
       if(!groupMap[kw]) groupMap[kw]=[];
@@ -1152,10 +1172,26 @@ function renderKodan(){
     });
   });
 
-  const groups=Object.entries(groupMap).filter(([,cards])=>cards.length>0);
+  let groups=Object.entries(groupMap).filter(([,cards])=>cards.length>0);
+
+  if(q){
+    groups=groups.filter(([kw,cards])=>{
+      if(kw.toLowerCase().includes(q)) return true;
+      return cards.some(c=>{
+        const copy=(state.kodanCopies||{})[c.id];
+        const content=copy?copy.content:c.content;
+        const next=copy?copy.next:c.next;
+        return (content||'').toLowerCase().includes(q)||
+               (next||'').toLowerCase().includes(q)||
+               subjById(c.subjId).name.includes(q);
+      });
+    });
+  }
 
   if(!groups.length){
-    el.innerHTML='<div class="empty">まだ横断グループがありません。<br>論点カードに「横断キーワード」を入れると<br>自動でここにグループが現れます！</div>';
+    el.innerHTML=q
+      ?'<div class="empty">「'+q+'」に一致するグループが見つかりませんでした。</div>'
+      :'<div class="empty">まだ横断グループがありません。<br>論点カードに「横断キーワード」を入れると<br>自動でここにグループが現れます！</div>';
     return;
   }
 
