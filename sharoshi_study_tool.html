@@ -841,7 +841,8 @@ function renderHeader(){
   document.getElementById('hdrDays').textContent=d+'日';
 }
 function renderPhaseBar(){
-  const d=daysLeft(), total=140;
+  const d=daysLeft();
+  const total=Math.max(d, 1); // 残り日数をtotalにすることでバーが常に埋まる
   const phases=[
     {name:'基礎固め',days:Math.max(0,d-99),color:'#5dbf85'},
     {name:'全科目演習',days:Math.max(0,Math.min(d,99)-28),color:'#42b0d8'},
