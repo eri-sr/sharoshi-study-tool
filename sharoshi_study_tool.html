@@ -26,7 +26,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text
 /* ナビ */
 .nav{position:fixed;bottom:0;left:0;right:0;background:var(--text);display:flex;z-index:300;
   border-top:1px solid #383028;}
-.nav-btn{flex:1;padding:8px 0 14px;background:none;border:none;color:#665e58;
+.nav-btn{flex:1;padding:8px 0 14px;background:none;border:none;color:#665e58;position:relative;
   font-size:9px;font-family:inherit;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s;}
 .nav-btn .ic{font-size:21px;}
@@ -60,6 +60,15 @@ textarea.inp{resize:none;}
 .cd-num{font-family:'Kaisei Decol',serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1.3;font-variant-numeric:lining-nums;-webkit-text-size-adjust:100%;}
 .cd-label{font-size:13px;color:var(--sub);margin-top:4px;}
 .cd-date{font-size:11px;color:#ccc;margin-top:8px;}
+.cd-date-btn{background:none;border:none;font-family:inherit;font-size:11px;color:#b5aea6;
+  cursor:pointer;padding:4px 10px;border-radius:14px;display:inline-flex;align-items:center;gap:5px;}
+.cd-date-btn:active{background:var(--bg);}
+.cd-date-btn .pen{font-size:10px;opacity:.75;}
+.exam-note{font-size:11px;color:var(--sub);line-height:1.7;background:var(--bg);
+  border-radius:10px;padding:10px 12px;margin-bottom:14px;}
+.ny-ttl{font-family:'Kaisei Decol',serif;font-size:16px;font-weight:700;margin-bottom:8px;}
+.ny-txt{font-size:12px;line-height:1.8;margin-bottom:12px;}
+.ny-note{font-size:11px;color:var(--sub);line-height:1.7;margin-top:10px;}
 
 .phase-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-bottom:5px;}
 .phasebar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#eee;}
@@ -204,6 +213,76 @@ textarea.inp{resize:none;}
 .empty{text-align:center;padding:36px 16px;color:var(--sub);font-size:13px;line-height:1.9;}
 .mt8{margin-top:8px;} .mt12{margin-top:12px;}
 
+/* ========== 時間管理・タイマー ========== */
+.timer-wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.timer-info{flex:1;min-width:0;}
+.timer-cap{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.1em;}
+.timer-big{font-family:'Kaisei Decol',serif;font-size:27px;font-weight:700;color:var(--text);
+  line-height:1.35;font-variant-numeric:lining-nums;-webkit-text-size-adjust:100%;}
+.timer-run{font-size:12px;font-weight:700;color:var(--accent);margin-top:3px;
+  display:flex;align-items:center;gap:6px;}
+.timer-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:tmblink 1.2s infinite;}
+@keyframes tmblink{0%,100%{opacity:1}50%{opacity:.2}}
+.timer-btn{width:90px;height:90px;border-radius:50%;border:none;flex-shrink:0;
+  font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .12s,opacity .12s;}
+.timer-btn:active{transform:scale(.94);opacity:.85;}
+.timer-btn .tb-ic{font-size:22px;line-height:1;}
+.timer-btn.go{background:var(--green);}
+.timer-btn.stop{background:var(--accent);}
+.tm-nav-dot{position:absolute;top:6px;left:calc(50% + 10px);width:7px;height:7px;
+  border-radius:50%;background:var(--accent);animation:tmblink 1.2s infinite;}
+
+.tm-total-hero{text-align:center;padding:4px 0 2px;}
+.tm-total-num{font-family:'Kaisei Decol',serif;font-weight:700;color:var(--accent);
+  font-variant-numeric:lining-nums;-webkit-text-size-adjust:100%;}
+.tm-total-unit{font-size:15px;color:var(--text);font-family:'Noto Sans JP',sans-serif;}
+.tm-stat-row{display:flex;gap:8px;margin-top:14px;}
+.tm-stat{flex:1;background:var(--bg);border-radius:12px;padding:9px 5px;text-align:center;}
+.tm-stat-lbl{font-size:10px;color:var(--sub);font-weight:700;}
+.tm-stat-val{font-size:14px;font-weight:700;margin-top:3px;font-variant-numeric:lining-nums;}
+
+.tm-bars{display:flex;align-items:flex-end;justify-content:space-between;gap:5px;height:92px;}
+.tm-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+.tm-bar{width:100%;max-width:26px;border-radius:5px 5px 0 0;background:var(--koyo);}
+.tm-bar.zero{background:#e8e4dc;}
+.tm-bar-min{font-size:9px;color:var(--sub);margin-bottom:3px;font-variant-numeric:lining-nums;height:12px;}
+.tm-bar-day{font-size:9px;color:var(--sub);margin-top:5px;}
+.tm-bar-day.tdy{color:var(--accent);font-weight:700;}
+
+.tm-day{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;}
+.tm-day-head{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg);}
+.tm-day-date{font-size:12px;font-weight:700;}
+.tm-day-sum{font-size:12px;font-weight:700;color:var(--accent);font-variant-numeric:lining-nums;}
+.tm-ses{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 11px;border-top:1px solid var(--border);font-size:11px;color:var(--sub);}
+.tm-ses-del{background:rgba(0,0,0,.08);border:none;border-radius:50%;width:22px;height:22px;
+  font-size:10px;cursor:pointer;color:rgba(0,0,0,.5);flex-shrink:0;font-family:inherit;}
+.tm-ses-del:active{background:rgba(0,0,0,.2);}
+.tm-badge{font-size:9px;font-weight:700;color:#fff;background:var(--accent);
+  border-radius:8px;padding:1px 7px;margin-left:5px;}
+.tm-none{font-size:12px;color:var(--sub);text-align:center;padding:6px 0 16px;line-height:1.7;}
+.tm-fold{width:100%;display:flex;align-items:center;gap:9px;background:var(--bg);
+  border:1px solid var(--border);border-radius:12px;padding:11px 12px;
+  font-family:inherit;cursor:pointer;text-align:left;margin-bottom:8px;}
+.tm-fold:active{background:var(--border);}
+.tm-fold-m{background:var(--surface);}
+.tm-fold-ttl{font-size:12px;font-weight:700;color:var(--text);flex:1;}
+.tm-fold-sub{font-size:11px;color:var(--sub);font-weight:700;white-space:nowrap;font-variant-numeric:lining-nums;}
+.tm-fold-ar{font-size:9px;color:var(--sub);flex-shrink:0;display:inline-block;transition:transform .18s;}
+.tm-fold-ar.open{transform:rotate(90deg);}
+.tm-fold-body{padding-left:11px;}
+.tm-drow{width:100%;display:flex;align-items:center;gap:9px;background:none;border:none;
+  border-bottom:1px solid var(--border);padding:10px 6px;font-family:inherit;cursor:pointer;text-align:left;}
+.tm-drow:active{background:var(--bg);}
+.tm-drow-date{font-size:12px;color:var(--text);flex:1;}
+.tm-drow-sum{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;font-variant-numeric:lining-nums;}
+.tm-drow-body{border-bottom:1px solid var(--border);background:var(--bg);}
+.rec-prev{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;
+  font-weight:700;text-align:center;margin-bottom:14px;line-height:1.6;}
+.rec-prev.warn{color:#c0392b;}
+
 /* ========== 使い方ページ ========== */
 .help-hero{background:var(--text);border-radius:16px;padding:20px 16px;margin-bottom:14px;text-align:center;}
 .help-hero-title{font-family:'Kaisei Decol',serif;font-size:20px;color:#fff;font-weight:700;margin-bottom:6px;}
@@ -272,7 +351,7 @@ textarea.inp{resize:none;}
   <div class="hdr-title">📚 社労士 学習管理</div>
   <div>
     <div class="hdr-days" id="hdrDays">—日</div>
-    <div class="hdr-date">試験まで</div>
+    <div class="hdr-date" id="hdrLbl">試験まで</div>
   </div>
 </div>
 
@@ -286,14 +365,50 @@ textarea.inp{resize:none;}
         合格するぞ✊
       </div>
       </div>
-      <div class="cd-num" style="font-family:'Kaisei Decol',serif;font-weight:700;font-size:32px;">あと <span id="cdNum" style="font-size:56px;">—</span> 日</div>
-      <div class="cd-date" style="margin-top:4px;">2026年8月23日（日）試験</div>
+      <div class="cd-num" id="cdMain" style="font-family:'Kaisei Decol',serif;font-weight:700;font-size:32px;">あと <span id="cdNum" style="font-size:56px;">—</span> 日</div>
+      <div class="cd-date" style="margin-top:2px;">
+        <button class="cd-date-btn" onclick="openExamModal()">
+          <span id="examDateLbl">－</span><span class="pen">✏️</span>
+        </button>
+      </div>
     </div>
-    <div class="phase-labels" style="margin-top:6px;">
+    <div class="phase-labels" id="phaseLabels" style="margin-top:6px;">
       <span>今日</span><span>基礎固め</span><span>全科目演習</span><span>総仕上げ</span><span>試験</span>
     </div>
     <div class="phasebar" id="phaseBar"></div>
     <div class="phase-now" id="phaseNow" style="margin-top:4px;"></div>
+  </div>
+  <!-- 試験が終わったら出る：来年度への切り替え -->
+  <div class="card" id="nextYearCard" style="display:none;">
+    <div class="ny-ttl">🎌 試験おつかれさまでした</div>
+    <div class="ny-txt">
+      次の試験は <strong id="nyDate">－</strong> です（例年の8月第4日曜日）。<br>
+      このアプリを来年度用に切り替えられます。
+    </div>
+    <button class="btn btn-accent" style="width:100%;justify-content:center;" onclick="switchNextYear()">この日に切り替える</button>
+    <div class="ny-note">
+      学習記録・論点カード・勉強時間は消えません。まっさらにしたいものがあるときは「使い方」タブのいちばん下のリセットから選べます。<br>
+      日付が違うときは、切り替えたあとに日付をタップして直せます。
+    </div>
+  </div>
+
+  <!-- 勉強タイマー -->
+  <div class="card">
+    <div class="timer-wrap">
+      <div class="timer-info">
+        <div class="timer-cap">⏱ 今日の勉強時間</div>
+        <div class="timer-big" id="tmTodayHome">0分</div>
+        <div class="timer-run" id="tmRunHome" style="display:none;">
+          <span class="timer-dot"></span><span id="tmElapHome">00:00:00</span>
+        </div>
+        <div style="font-size:11px;color:var(--sub);margin-top:7px;">
+          累計 <strong id="tmTotalHome" style="color:var(--text);font-size:12px;">0分</strong>
+        </div>
+      </div>
+      <button class="timer-btn go" id="tmBtnHome" onclick="toggleTimer()">
+        <span class="tb-ic">▶</span><span id="tmBtnLblHome">スタート</span>
+      </button>
+    </div>
   </div>
   <div class="card">
     <div class="card-ttl">📖 やったことをタップ！</div>
@@ -322,6 +437,47 @@ textarea.inp{resize:none;}
   <div id="kodanList"></div>
 </div>
 
+<!-- 時間管理 -->
+<div class="page" id="pageTime">
+  <div class="card">
+    <div class="card-ttl">⏱ 累計の勉強時間</div>
+    <div class="tm-total-hero"><span class="tm-total-num" id="tmTotalBig"></span></div>
+    <div class="tm-stat-row">
+      <div class="tm-stat"><div class="tm-stat-lbl">今日</div><div class="tm-stat-val" id="tmStatToday">0分</div></div>
+      <div class="tm-stat"><div class="tm-stat-lbl">今週（月〜）</div><div class="tm-stat-val" id="tmStatWeek">0分</div></div>
+      <div class="tm-stat"><div class="tm-stat-lbl">今月</div><div class="tm-stat-val" id="tmStatMonth">0分</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="timer-wrap">
+      <div class="timer-info">
+        <div class="timer-cap">⏱ 勉強タイマー</div>
+        <div class="timer-big" id="tmElapBig">00:00:00</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px;line-height:1.5;" id="tmTimerNote">スタートを押すと計測が始まります</div>
+      </div>
+      <button class="timer-btn go" id="tmBtnTime" onclick="toggleTimer()">
+        <span class="tb-ic">▶</span><span id="tmBtnLblTime">スタート</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">📊 直近7日間</div>
+    <div class="tm-bars" id="tmBars"></div>
+    <div class="tm-stat-row">
+      <div class="tm-stat"><div class="tm-stat-lbl">勉強した日数</div><div class="tm-stat-val" id="tmStatDays">0日</div></div>
+      <div class="tm-stat"><div class="tm-stat-lbl">1日平均</div><div class="tm-stat-val" id="tmStatAvg">0分</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">📝 記録</div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:12px;" onclick="openRecModal()">＋ 手で記録を追加する</button>
+    <div id="tmList"></div>
+  </div>
+</div>
+
 <!-- 使い方 -->
 <div class="page" id="pageHelp">
   <div id="helpContent"></div>
@@ -331,6 +487,9 @@ textarea.inp{resize:none;}
 <nav class="nav">
   <button class="nav-btn on" onclick="showPage('Home',this)">
     <span class="ic">🏠</span>ホーム
+  </button>
+  <button class="nav-btn" id="navTimeBtn" onclick="showPage('Time',this)">
+    <span class="ic">⏱</span>時間管理
   </button>
   <button class="nav-btn" onclick="showPage('Futo',this)">
     <span class="ic">📌</span>論点カード
@@ -361,6 +520,28 @@ textarea.inp{resize:none;}
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeKodanEditModal()">キャンセル</button>
       <button class="btn btn-accent" onclick="saveKodanEdit()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 試験日の設定 -->
+<div class="modal-bg" id="modalExam">
+  <div class="modal">
+    <div class="modal-ttl">📅 試験日を設定</div>
+    <div class="exam-note">
+      来年度に切り替えるときは、ここで日付を変えてください。<br>
+      カウントダウンとフェーズバーが、新しい試験日で計算し直されます。学習記録・論点カード・勉強時間はそのまま残ります。
+    </div>
+    <div class="form-row">
+      <label class="form-label">試験日</label>
+      <input class="inp" id="examInput" type="date">
+      <div style="font-size:11px;color:var(--sub);margin-top:5px;line-height:1.6;">
+        社労士試験は例年8月の第4日曜日です。正式な日程は毎年4月ごろに発表されます。
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeExamModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveExam()">💾 保存</button>
     </div>
   </div>
 </div>
@@ -418,6 +599,42 @@ textarea.inp{resize:none;}
   </div>
 </div>
 
+<!-- モーダル: 勉強時間の追加・編集 -->
+<div class="modal-bg" id="modalRec">
+  <div class="modal">
+    <div class="modal-ttl" id="recModalTtl">⏱ 勉強時間を追加</div>
+    <div class="form-row">
+      <label class="form-label">日付</label>
+      <input class="inp" id="recDate" type="date" onchange="recPreview()">
+    </div>
+    <div class="form-row">
+      <label class="form-label">🕒 何時から何時まで</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="inp" id="recStart" type="time" oninput="recPreview()" onchange="recPreview()">
+        <span style="font-size:13px;">〜</span>
+        <input class="inp" id="recEnd" type="time" oninput="recPreview()" onchange="recPreview()">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">時刻がわからないときは、時間だけ</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="inp" id="recHour" type="number" min="0" max="23" inputmode="numeric" placeholder="0" style="text-align:center;" oninput="recPreview()">
+        <span style="font-size:13px;white-space:nowrap;">時間</span>
+        <input class="inp" id="recMin" type="number" min="0" max="59" inputmode="numeric" placeholder="0" style="text-align:center;" oninput="recPreview()">
+        <span style="font-size:13px;white-space:nowrap;">分</span>
+      </div>
+    </div>
+    <div class="rec-prev" id="recPrev">時間を入れてください</div>
+    <div id="recDeleteRow" style="display:none;margin-bottom:8px;">
+      <button class="btn btn-danger" style="width:100%;justify-content:center;" onclick="deleteRecFromModal()">🗑️ この記録を削除</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeRecModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveRec()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -442,10 +659,41 @@ const REASONS = [
   {id:'r5', icon:'📢', label:'法改正ポイント',    desc:'改正前の内容で覚えていた',        color:'#6dbf8a'},
   {id:'r6', icon:'😅', label:'うっかり忘れてた',  desc:'知ってるのに本番で出てこなかった', color:'#c4a87a'},
 ];
-const EXAM_DATE = new Date('2026-08-23T09:00:00');
+// 試験日は使う人が変えられる。既定値は2027年度（例年8月の第4日曜日）
+const DEFAULT_EXAM_DATE = '2027-08-22';
+function examDateStr(){
+  const v=state.examDate;
+  return (typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))?v:DEFAULT_EXAM_DATE;
+}
+function examDateObj(){ return new Date(examDateStr()+'T09:00:00'); }
+function dateJp(key){
+  const wd=['日','月','火','水','木','金','土'];
+  const d=new Date(key+'T00:00:00');
+  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+wd[d.getDay()]+'）';
+}
+function examLabel(){ return dateJp(examDateStr())+'試験'; }
+// 試験日を過ぎたか（試験日当日はまだ「過ぎていない」）
+function examPassed(){ return ymd(new Date()) > examDateStr(); }
+// 8月の第4日曜日
+function fourthSundayOfAug(year){
+  const d=new Date(year,7,1);
+  d.setDate(1+((7-d.getDay())%7)+21);
+  return d;
+}
+// 次の試験日（今より先になるまで1年ずつ進める）
+function nextExamDateStr(){
+  let y=new Date(examDateStr()+'T00:00:00').getFullYear()+1;
+  let d=fourthSundayOfAug(y);
+  while(ymd(d)<=ymd(new Date())){ y++; d=fourthSundayOfAug(y); }
+  return ymd(d);
+}
 
 let state = {
+  seeded: false,    // 初回サンプル投入済みフラグ（リセット後に復活しないよう記録）
+  examDate: null,   // 試験日（未設定なら DEFAULT_EXAM_DATE を使う）
   studyLog: {},
+  timeLog: [],      // 勉強時間の記録 [{id,date,s,e,min}]
+  timerStart: null, // 計測中の開始時刻（ISO文字列）。アプリを閉じても続く
   futoCards: [],
   kodanCards: [],
   kodanCopies: {}, // {cardId: {content, next}} 横断タブ専用コピー
@@ -485,7 +733,7 @@ function daysAgo(dateStr){
   const b=new Date(today+'T00:00:00+09:00');
   return Math.floor((b-a)/86400000);
 }
-function daysLeft(){ const n=new Date(),e=new Date(EXAM_DATE); n.setHours(0,0,0,0);e.setHours(0,0,0,0); return Math.max(0,Math.floor((e-n)/86400000)); }
+function daysLeft(){ const n=new Date(),e=examDateObj(); n.setHours(0,0,0,0);e.setHours(0,0,0,0); return Math.max(0,Math.floor((e-n)/86400000)); }
 function subjById(id){ return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0]; }
 function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 function showToast(msg){ const e=document.getElementById('toast'); e.textContent=msg; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'),2200); }
@@ -499,6 +747,7 @@ function showPage(name,btn){
   btn.classList.add('on');
   if(name==='Futo') renderFuto();
   if(name==='Kodan') renderKodan();
+  if(name==='Time') renderTime();
   if(name==='Help') renderHelp();
 }
 
@@ -507,7 +756,7 @@ function renderHelp(){
   document.getElementById('helpContent').innerHTML=`
   <div class="help-hero">
     <div class="help-hero-title">📚 使い方ガイド</div>
-    <div class="help-hero-sub">このアプリは3つのタブで構成されています。<br>論点カードを育てながら、8月の試験に向けて<br>苦手を確実に潰していきましょう！</div>
+    <div class="help-hero-sub">ホーム・時間管理・論点カード・横断の4つのタブを使います。<br>論点カードを育てながら、8月の試験に向けて<br>苦手を確実に潰していきましょう！</div>
   </div>
 
   <!-- 全体像 -->
@@ -521,26 +770,33 @@ function renderHelp(){
         <div class="help-step">
           <div class="help-step-num">1</div>
           <div class="help-step-body">
-            <div class="help-step-title">勉強したらホームで記録</div>
-            <div class="help-step-desc">科目ボタンをタップするだけ。何日放置しているかが見えます。</div>
+            <div class="help-step-title">勉強を始めたらスタートを押す</div>
+            <div class="help-step-desc">ホームの丸いボタンを押すだけ。終わったらストップ。勉強時間がたまっていきます。</div>
           </div>
         </div>
         <div class="help-step">
           <div class="help-step-num">2</div>
           <div class="help-step-body">
-            <div class="help-step-title">間違えたら論点カードに追加</div>
-            <div class="help-step-desc">「なぜ間違えたか」「引っかけポイント」を付箋感覚でペタっと。</div>
+            <div class="help-step-title">やったことをホームで記録</div>
+            <div class="help-step-desc">科目ボタンをタップするだけ。何日放置しているかが見えます。</div>
           </div>
         </div>
         <div class="help-step">
           <div class="help-step-num">3</div>
+          <div class="help-step-body">
+            <div class="help-step-title">間違えたら論点カードに追加</div>
+            <div class="help-step-desc">「論点」と「なぜ間違えたか・引っかけポイント」を付箋感覚でペタっと。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">4</div>
           <div class="help-step-body">
             <div class="help-step-title">横断論点に気づいたらキーワードを追加</div>
             <div class="help-step-desc">「あ、これ他の科目でも出てくる！」と思ったら横断キーワードを入力。横断タブで自動グループ化されます。</div>
           </div>
         </div>
         <div class="help-step">
-          <div class="help-step-num">4</div>
+          <div class="help-step-num">5</div>
           <div class="help-step-body">
             <div class="help-step-title">試験直前にこのアプリで総復習</div>
             <div class="help-step-desc">集まった論点カード＝自分だけの弱点集。8月にここを見返せばOK！</div>
@@ -563,8 +819,8 @@ function renderHelp(){
           <div style="text-align:center;margin-bottom:8px;">
             <span style="font-family:'Zen Maru Gothic',sans-serif;font-size:16px;font-weight:700;color:#fff;background:#e8908a;padding:2px 14px;border-radius:16px;display:inline-block;">合格するぞ✊</span>
           </div>
-          <div style="font-size:32px;font-weight:900;color:var(--accent);line-height:1;font-family:'Kaisei Decol',serif;">あと 136 日</div>
-          <div style="font-size:10px;color:#ccc;margin-top:4px;">2026年8月23日（日）試験</div>
+          <div style="font-size:32px;font-weight:900;color:var(--accent);line-height:1;font-family:'Kaisei Decol',serif;">あと 355 日</div>
+          <div style="font-size:10px;color:#b5aea6;margin-top:4px;">2027年8月22日（日）試験 ✏️</div>
           <div style="margin-top:10px;">
             <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;background:#eee;">
               <div style="width:50%;background:#5dbf85;"></div>
@@ -578,8 +834,33 @@ function renderHelp(){
           <div style="font-size:11px;color:var(--accent);font-weight:700;margin-top:8px;">📗 今は「基礎固め」フェーズ</div>
         </div>
         <p>試験まであと何日かが一目でわかります。フェーズバーは「基礎固め→全科目演習→総仕上げ」の3段階で、今どのフェーズかを表示します。</p>
+        <p>日付の部分（「2027年8月22日（日）試験」）を<strong>タップすると試験日を変えられます。</strong>正式な日程が発表されて日がずれたときや、来年度に切り替えるときはここで入れ直してください。カウントダウンとフェーズバーが計算し直されます。<strong>学習記録・論点カード・勉強時間はそのまま残ります。</strong></p>
+        <p>試験日を過ぎると、ホームのいちばん上に<strong>「来年度に切り替える」ボタン</strong>が出ます。押すと次の年の8月第4日曜日に切り替わるので、そのまま次の年の勉強に使えます。</p>
         <p>上の「合格するぞ✊」はタップすると自分だけの一言メッセージに変えられます。改行もできます。</p>
         <div class="help-tip">自分だけの言葉を入れて、毎日開くたびにモチベアップ！</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">⏱ 勉強タイマー（スタート・ストップ）</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="flex:1;">
+              <div style="font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.1em;">⏱ 今日の勉強時間</div>
+              <div style="font-family:'Kaisei Decol',serif;font-size:24px;font-weight:700;">2時間15分</div>
+              <div style="font-size:11px;font-weight:700;color:var(--accent);margin-top:3px;">● 00:42:10</div>
+              <div style="font-size:11px;color:var(--sub);margin-top:6px;">累計 <strong style="color:var(--text);">128時間40分</strong></div>
+            </div>
+            <div style="width:74px;height:74px;border-radius:50%;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:700;gap:2px;flex-shrink:0;">
+              <span style="font-size:19px;line-height:1;">■</span>ストップ
+            </div>
+          </div>
+        </div>
+        <p>勉強を始めるときに<strong>スタート</strong>、終わったら<strong>ストップ</strong>。それだけで「何時間何分やったか」が記録され、累計にたされていきます。</p>
+        <p>計測中はボタンが赤い「ストップ」に変わり、その下に経過時間が動きます。<strong>アプリを閉じても計測は続きます</strong>ので、次に開いたときにストップを押せば大丈夫です。</p>
+        <p>1分未満のときは記録されません。7時間以上になったときは「押し忘れではないですか？」と確認が出ます。</p>
+        <p>夜ふかしして日付をまたいだときは、<strong>まるごと「始めた日」の記録</strong>になります（23:00〜01:30なら2時間30分がその前日の分）。日付ごとに分けたいときは、あとから✏️で直せます。</p>
+        <div class="help-tip">くわしい合計やグラフ、記録の一覧は「時間管理」タブで見られます。</div>
       </div>
     </div>
     <div class="help-card">
@@ -614,6 +895,81 @@ function renderHelp(){
         <p>10科目それぞれに「📖 テキスト」「✏️ 問題」の2つのボタンがあります。<strong>やったほうをタップするだけで記録</strong>されます。もう一度タップすると取り消せます。</p>
         <p>ボタンの右側に最後にやった日からの日数が表示されます。<strong>7日以上さわっていないと赤字で「放置…」</strong>と表示されるので、どの科目・どの学習が疎かになっているか一目でわかります。</p>
         <div class="help-tip">テキストと問題で別々に記録できるので、「テキストは読んだけど問題はまだ」という状態も把握できます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 時間管理タブ -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">⏱</div>
+      <div class="help-section-title">時間管理タブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">⏱ 累計の勉強時間</div>
+      <div class="help-card-body">
+        <div class="mock" style="text-align:center;">
+          <div style="font-family:'Kaisei Decol',serif;font-weight:700;color:var(--accent);">
+            <span style="font-size:38px;">128</span><span style="font-size:13px;color:var(--text);"> 時間 </span><span style="font-size:23px;">40</span><span style="font-size:13px;color:var(--text);"> 分</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <div style="flex:1;background:#fff;border-radius:10px;padding:7px 4px;"><div style="font-size:10px;color:var(--sub);font-weight:700;">今日</div><div style="font-size:13px;font-weight:700;margin-top:2px;">2時間15分</div></div>
+            <div style="flex:1;background:#fff;border-radius:10px;padding:7px 4px;"><div style="font-size:10px;color:var(--sub);font-weight:700;">今週（月〜）</div><div style="font-size:13px;font-weight:700;margin-top:2px;">11時間</div></div>
+            <div style="flex:1;background:#fff;border-radius:10px;padding:7px 4px;"><div style="font-size:10px;color:var(--sub);font-weight:700;">今月</div><div style="font-size:13px;font-weight:700;margin-top:2px;">38時間5分</div></div>
+          </div>
+        </div>
+        <p>いちばん上に<strong>これまでの累計勉強時間</strong>が大きく出ます。「この1年で何時間やったか」がここでわかります。</p>
+        <p>その下は今日・今週（月曜から）・今月の合計です。</p>
+        <div class="help-tip">タイマーはこのタブにもあります。ホームと同じボタンなので、どちらから押しても大丈夫です。</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📊 直近7日間のグラフ</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:5px;height:80px;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);">1.5h</div><div style="width:100%;max-width:24px;height:26px;background:var(--koyo);border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--sub);margin-top:4px;">火</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);">3h</div><div style="width:100%;max-width:24px;height:52px;background:var(--koyo);border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--sub);margin-top:4px;">水</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);">40分</div><div style="width:100%;max-width:24px;height:12px;background:var(--koyo);border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--sub);margin-top:4px;">木</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);"></div><div style="width:100%;max-width:24px;height:3px;background:#e8e4dc;border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--sub);margin-top:4px;">金</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);">4.5h</div><div style="width:100%;max-width:24px;height:62px;background:var(--koyo);border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--sub);margin-top:4px;">土</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);">2h</div><div style="width:100%;max-width:24px;height:34px;background:var(--koyo);border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--sub);margin-top:4px;">日</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:var(--sub);">2.2h</div><div style="width:100%;max-width:24px;height:38px;background:var(--koyo);border-radius:5px 5px 0 0;"></div><div style="font-size:9px;color:var(--accent);font-weight:700;margin-top:4px;">月</div></div>
+          </div>
+        </div>
+        <p>今日を右端に、7日分の棒グラフが出ます。今日の曜日だけ色が変わります。1時間以上の日は「2.2h」のように時間で、1時間未満の日は「40分」と出ます。</p>
+        <p>その下の「勉強した日数」「1日平均」は、記録がある日だけで計算しています。</p>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📝 記録の一覧・直す・追加・削除</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;">
+            <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);">
+              <span style="font-size:12px;font-weight:700;">9月1日（月）</span>
+              <span style="font-size:12px;font-weight:700;color:var(--accent);">2時間15分</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-top:1px solid var(--border);font-size:11px;color:var(--sub);">
+              <span>06:30〜07:45</span><span style="display:flex;align-items:center;gap:8px;"><strong style="color:var(--text);">1時間15分</strong><span style="background:rgba(0,0,0,.08);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;">✏️</span><span style="background:rgba(0,0,0,.08);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;">✕</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-top:1px solid var(--border);font-size:11px;color:var(--sub);">
+              <span>手で追加</span><span style="display:flex;align-items:center;gap:6px;"><strong style="color:var(--text);">1時間</strong><span style="background:rgba(0,0,0,.08);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;">✏️</span><span style="background:rgba(0,0,0,.08);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;">✕</span></span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-top:8px;">
+            <span style="font-size:9px;color:var(--sub);">▶</span>
+            <span style="font-size:12px;font-weight:700;flex:1;">それより前の記録</span>
+            <span style="font-size:11px;color:var(--sub);font-weight:700;">38日 ・ 112時間30分</span>
+          </div>
+        </div>
+        <p><strong>今日と昨日の分だけ</strong>、中身まで開いた状態で出ます。1日の中の1回ごとに「何時から何時まで」も残ります。</p>
+        <p>それより前は「<strong>それより前の記録</strong>」に畳まれています。タップすると月ごとの合計が出て、月をタップすると日ごと、日をタップするとその日の中身が開きます。長くならないので、画面がすっきりしたままです。</p>
+        <p>記録の右にある<strong>✏️で直せます。</strong>「何時から何時まで」を手で書きかえると、その日の合計・今週・今月・累計にもすぐ反映されます。時刻がわからない記録は「○時間○分」で直せます。</p>
+        <p><strong>＋ 手で記録を追加する</strong>を押すと、後から足せます。日付と「21:00〜23:00」のように時刻を入れるか、時刻がわからないときは「○時間○分」だけでもOKです。</p>
+        <p>いらない記録は<strong>✕</strong>で1回ずつ消せます（確認メッセージが出ます）。</p>
+        <p>夜ふかしして日付をまたいだときは「23:00〜01:00」のように入れれば2時間として計算します（終わりは翌日あつかい）。記録はその日（始めた日）に入ります。</p>
+        <div class="help-tip">畳んだ・開いたの状態は覚えていません。次に開いたときはまた「今日と昨日だけ」のすっきりした形に戻ります。</div>
       </div>
     </div>
   </div>
@@ -659,7 +1015,7 @@ function renderHelp(){
           <div class="help-step-num">1</div>
           <div class="help-step-body">
             <div class="help-step-title">「＋ 論点カードを追加」をタップ</div>
-            <div class="help-step-desc">画面上部のボタンをタップすると入力画面が下から出てきます。</div>
+            <div class="help-step-desc">検索ボックスとフィルターの下にある点線のボタンです。タップすると入力画面が出てきます。</div>
           </div>
         </div>
         <div class="help-step">
@@ -672,15 +1028,15 @@ function renderHelp(){
         <div class="help-step">
           <div class="help-step-num">3</div>
           <div class="help-step-body">
-            <div class="help-step-title">論点・引っかけポイントを入力</div>
-            <div class="help-step-desc">「傷病手当金の支給期間」など論点名と、「10日→✕ 支給開始日から起算」のような引っかけポイントを書きます。</div>
+            <div class="help-step-title">論点と引っかけポイントを入力</div>
+            <div class="help-step-desc">入力欄は2つあります。上の「論点・苦手ポイント」に「傷病手当金の支給期間」など論点名を、下の「⚠️ 間違えた理由・引っかけポイント」に「支給開始日から起算。初診日は✕」のような注意書きを書きます。下は空でもOKです。</div>
           </div>
         </div>
         <div class="help-step">
           <div class="help-step-num">4</div>
           <div class="help-step-body">
             <div class="help-step-title">できない理由を選ぶ</div>
-            <div class="help-step-desc">6つのボタンから選択（複数OK）。</div>
+            <div class="help-step-desc">6つのボタンから選びます（複数OK）。当てはまるものがなければ、下の「その他（自由記入）」に自分の言葉で書けます。</div>
           </div>
         </div>
         <div class="reason-mock">
@@ -695,7 +1051,7 @@ function renderHelp(){
           <div class="help-step-num">5</div>
           <div class="help-step-body">
             <div class="help-step-title">横断キーワードを入力（任意）</div>
-            <div class="help-step-desc">「待期」「時効」など他の科目にも出てくるキーワードを入れると、横断タブで自動グループ化されます。</div>
+            <div class="help-step-desc">「待期」「時効」など他の科目にも出てくるキーワードを入れると、横断タブで自動グループ化されます。カンマ・読点（、）・スペースで区切れば、いくつでも入れられます。</div>
           </div>
         </div>
         <div class="help-tip">後からでも✏️ボタンで編集できます。まずはサクッと追加してOK！</div>
@@ -705,6 +1061,12 @@ function renderHelp(){
       <div class="help-card-head">🔍 絞り込みフィルター</div>
       <div class="help-card-body">
         <div class="mock">
+          <div style="border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:11px;color:#bbb;background:#fff;margin-bottom:6px;">🔍 キーワードで検索…</div>
+          <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:5px;">
+            <span style="padding:4px 12px;background:#f07ba8;color:#fff;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">健保</span>
+            <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">厚年</span>
+            <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">国年</span>
+          </div>
           <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;">
             <span style="padding:4px 12px;background:var(--text);color:#fff;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">📋 すべて</span>
             <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">😶 覚えてない</span>
@@ -712,8 +1074,10 @@ function renderHelp(){
             <span style="padding:4px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🔀 混同</span>
           </div>
         </div>
-        <p>科目フィルター（横スクロール）でカードを絞り込めます。さらに「できない理由」でも絞り込めるので、「数字系の引っかけだけ見る」などの使い方ができます。</p>
-        <p>カードは長押しでドラッグして並び替えができます。</p>
+        <p>フィルターは<strong>2段</strong>あります。上の段が科目、下の段が「できない理由」です（どちらも横スクロール）。組み合わせられるので、「健保の数字ミスだけ見る」といった絞り込みができます。</p>
+        <p>一番上の<strong>🔍 検索ボックス</strong>にキーワードを入れると、論点・引っかけポイント・横断キーワード・科目名からカードを探せます。フィルターと同時に使えます。</p>
+        <p>カードは長押しでドラッグして並び替えができます（パソコンならそのままドラッグ）。</p>
+        <p>カード右上の<strong>✏️で編集、✕で削除</strong>です。削除は確認メッセージが出ます。</p>
       </div>
     </div>
   </div>
@@ -746,6 +1110,8 @@ function renderHelp(){
         </div>
         <p>論点カードに同じ横断キーワードをつけると、このタブで自動的にグループとして並びます。</p>
         <p>「労災は3日・雇用は7日・健保は3日」のように科目ごとの違いが縦に並ぶので、<strong>混同しやすい論点を一気に比較</strong>できます。</p>
+        <p>キーワードが1枚だけのときもグループとして出るので、「これから比較を増やす場所」の目印にもなります。</p>
+        <p>上の<strong>🔍 検索ボックス</strong>では、キーワード名でも中身の文章でもグループを探せます。</p>
         <div class="help-tip">横断タブは論点カードを育てるほど充実します。勉強しながら「あ、これ他でもあった！」と気づいたらキーワードを追加してみてください。</div>
       </div>
     </div>
@@ -768,7 +1134,7 @@ function renderHelp(){
     </div>
     <div class="help-card">
       <div class="help-card-body">
-        <p>入力したデータはすべて<strong>このブラウザ（スマホ）に自動保存</strong>されます。次に開いたときも続きから使えます。</p>
+        <p>入力したデータ（学習記録・論点カード・勉強時間）はすべて<strong>このブラウザ（スマホ）に自動保存</strong>されます。次に開いたときも続きから使えます。計測中のタイマーも保存されるので、閉じても止まりません。</p>
         <p>ただし、以下の場合はデータが消えることがあります：</p>
         <div style="background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9;color:var(--sub);">
           ・ブラウザの「閲覧データを消去」をした場合<br>
@@ -790,7 +1156,8 @@ function renderHelp(){
     </div>
     <div class="help-card">
       <div class="help-card-body">
-        <p style="color:#e74c3c;font-size:12px;margin-bottom:12px;">⚠️ 削除したデータは元に戻せません。</p>
+        <p>初めて開いたときは、見た目がわかるように<strong>サンプルの学習記録と論点カード</strong>が入っています。自分の記録を始める前に、下のボタンで消してからスタートするのがおすすめです。</p>
+        <p style="color:#e74c3c;font-size:12px;margin:12px 0;">⚠️ 削除したデータは元に戻せません。</p>
         <p style="font-size:13px;margin-bottom:8px;">📖 学習記録だけリセット（論点カードは残る）</p>
         <button onclick="resetStudyLog()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
           📖 学習記録をリセットする
@@ -798,6 +1165,10 @@ function renderHelp(){
         <p style="font-size:13px;margin-bottom:8px;">📌 論点カードだけリセット（学習記録は残る）</p>
         <button onclick="resetFutoCards()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
           📌 論点カードをリセットする
+        </button>
+        <p style="font-size:13px;margin-bottom:8px;">⏱ 勉強時間の記録だけリセット</p>
+        <button onclick="resetTimeLog()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
+          ⏱ 勉強時間をリセットする
         </button>
         <p style="font-size:13px;margin-bottom:8px;">🗑️ すべてリセット</p>
         <button onclick="resetAllData()" style="width:100%;padding:12px;background:none;border:2px solid #e74c3c;border-radius:12px;color:#e74c3c;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">
@@ -835,13 +1206,67 @@ document.getElementById('modalMotiv').addEventListener('click',function(e){ if(e
 
 // ========== ヘッダー・フェーズ ==========
 function renderHeader(){
-  const d=daysLeft();
-  const el=document.getElementById('cdNum');
-  if(el) el.textContent=d;
-  document.getElementById('hdrDays').textContent=d+'日';
+  const d=daysLeft(), passed=examPassed();
+  const main=document.getElementById('cdMain');
+  if(main){
+    main.innerHTML = passed
+      ? '<span style="font-size:22px;">試験おつかれさまでした</span>'
+      : 'あと <span id="cdNum" style="font-size:56px;">'+d+'</span> 日';
+  }
+  const hd=document.getElementById('hdrDays');
+  if(hd) hd.textContent = passed ? 'お疲れさま' : d+'日';
+  const hl=document.getElementById('hdrLbl');
+  if(hl) hl.textContent = passed ? '試験終了' : '試験まで';
+  const lbl=document.getElementById('examDateLbl');
+  if(lbl) lbl.textContent=examLabel();
+  renderNextYearCard();
+}
+
+// ========== 試験日の設定 ==========
+function openExamModal(){
+  document.getElementById('examInput').value=examDateStr();
+  document.getElementById('modalExam').classList.add('on');
+}
+function closeExamModal(){ document.getElementById('modalExam').classList.remove('on'); }
+document.getElementById('modalExam').addEventListener('click',function(e){ if(e.target===this)closeExamModal(); });
+function saveExam(){
+  const v=document.getElementById('examInput').value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)||isNaN(new Date(v+'T09:00:00').getTime())){
+    showToast('日付を選んでください'); return;
+  }
+  state.examDate=v; saveState();
+  renderHeader(); renderPhaseBar(); closeExamModal();
+  showToast('試験日を'+dateJp(v)+'にしました📅');
+}
+
+// ========== 試験が終わったら来年度へ ==========
+function renderNextYearCard(){
+  const card=document.getElementById('nextYearCard');
+  if(!card) return;
+  if(!examPassed()){ card.style.display='none'; return; }
+  card.style.display='block';
+  const el=document.getElementById('nyDate');
+  if(el) el.textContent=dateJp(nextExamDateStr());
+}
+function switchNextYear(){
+  const v=nextExamDateStr();
+  if(!confirm('試験日を'+dateJp(v)+'に切り替えます。\n\n学習記録・論点カード・勉強時間はそのまま残ります。\nよろしいですか？')) return;
+  state.examDate=v; saveState();
+  renderHeader(); renderPhaseBar();
+  showToast('試験日を'+dateJp(v)+'にしました📅');
 }
 function renderPhaseBar(){
   const d=daysLeft();
+  // 試験が終わったらフェーズバーは隠す（カウントダウン欄と切り替えカードで伝える）
+  const lab=document.getElementById('phaseLabels'), bar=document.getElementById('phaseBar');
+  if(examPassed()){
+    if(lab) lab.style.display='none';
+    if(bar) bar.style.display='none';
+    document.getElementById('phaseNow').textContent='';
+    return;
+  }
+  if(lab) lab.style.display='flex';
+  if(bar) bar.style.display='flex';
   const total=Math.max(d, 1); // 残り日数をtotalにすることでバーが常に埋まる
   const phases=[
     {name:'基礎固め',days:Math.max(0,d-99),color:'#5dbf85'},
@@ -854,11 +1279,315 @@ function renderPhaseBar(){
   }).join('');
   const n=document.getElementById('phaseNow');
   if(d<=3){
-    n.innerHTML='<div style="text-align:center;"><span style="font-family:\'Zen Maru Gothic\',sans-serif;font-size:18px;font-weight:700;color:#fff;background:#e8908a;padding:2px 16px;border-radius:20px;display:inline-block;line-height:1.6;">今まで頑張った自分を信じて。きっと合格🍀</span></div>';
+    n.innerHTML='<div style="text-align:center;"><span style="font-family:\'Zen Maru Gothic\',sans-serif;font-size:18px;font-weight:700;color:#fff;background:#e8908a;padding:2px 16px;border-radius:20px;display:inline-block;line-height:1.6;">今まで頑張った自分を信じて。<br>きっと合格🍀</span></div>';
   } else if(d>99) n.textContent='📗 今は「基礎固め」フェーズ';
   else if(d>28) n.textContent='📘 今は「全科目演習」フェーズ';
   else if(d>0) n.textContent='🔥 今は「総仕上げ」フェーズ！';
   else n.textContent='🎌 試験日！';
+}
+
+// ========== 勉強時間タイマー ==========
+function ymd(d){ const y=d.getFullYear(),m=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2); return y+'-'+m+'-'+dd; }
+function fmtMin(m){
+  m=Math.max(0,Math.round(m));
+  const h=Math.floor(m/60), mi=m%60;
+  return h ? (h+'時間'+(mi?mi+'分':'')) : (mi+'分');
+}
+function fmtHMS(sec){
+  sec=Math.max(0,Math.floor(sec));
+  const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), s=sec%60;
+  return ('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+}
+function timeRecs(){ if(!Array.isArray(state.timeLog)) state.timeLog=[]; return state.timeLog; }
+// from〜to（日付文字列。省略で全期間）の合計分
+function sumMin(from,to){
+  return timeRecs()
+    .filter(r=>(!from||r.date>=from)&&(!to||r.date<=to))
+    .reduce((a,r)=>a+(r.min||0),0);
+}
+function elapsedSec(){
+  if(!state.timerStart) return 0;
+  return Math.floor((Date.now()-new Date(state.timerStart).getTime())/1000);
+}
+// 計測中の分（開始日が今日のときだけ「今日」に足して見せる）
+function runningMin(){
+  if(!state.timerStart) return 0;
+  return ymd(new Date(state.timerStart))===ymd(new Date()) ? Math.floor(elapsedSec()/60) : 0;
+}
+
+function toggleTimer(){
+  if(state.timerStart){
+    const st=new Date(state.timerStart), en=new Date();
+    const min=Math.floor(elapsedSec()/60);
+    if(min<1){
+      state.timerStart=null; saveState(); renderTime();
+      showToast('1分未満だったので記録しませんでした');
+      return;
+    }
+    if(min>=420 && !confirm(fmtMin(min)+' を記録します。\nストップの押し忘れではありませんか？\n\nOK＝そのまま記録する\nキャンセル＝記録しない')){
+      state.timerStart=null; saveState(); renderTime();
+      showToast('記録しませんでした（手で追加できます）');
+      return;
+    }
+    timeRecs().push({id:uid(),date:ymd(st),s:st.toISOString(),e:en.toISOString(),min:min});
+    state.timerStart=null; saveState(); renderTime();
+    showToast('お疲れさま！ '+fmtMin(min)+' を記録しました⏱');
+  } else {
+    state.timerStart=new Date().toISOString();
+    saveState(); renderTime();
+    showToast('計測を始めました⏱ がんばって！');
+  }
+}
+
+function renderTime(){ renderTimerBtns(); tickTimer(); renderTimeBars(); renderTimeList(); }
+
+function renderTimerBtns(){
+  const running=!!state.timerStart;
+  [['tmBtnHome','tmBtnLblHome'],['tmBtnTime','tmBtnLblTime']].forEach(function(ids){
+    const btn=document.getElementById(ids[0]); if(!btn) return;
+    btn.classList.toggle('go',!running);
+    btn.classList.toggle('stop',running);
+    btn.querySelector('.tb-ic').textContent=running?'■':'▶';
+    const lbl=document.getElementById(ids[1]); if(lbl) lbl.textContent=running?'ストップ':'スタート';
+  });
+  const nav=document.getElementById('navTimeBtn');
+  if(nav){
+    let dot=nav.querySelector('.tm-nav-dot');
+    if(running&&!dot){ dot=document.createElement('span'); dot.className='tm-nav-dot'; nav.appendChild(dot); }
+    if(!running&&dot) dot.remove();
+  }
+  const run=document.getElementById('tmRunHome');
+  if(run) run.style.display=running?'flex':'none';
+  const note=document.getElementById('tmTimerNote');
+  if(note) note.textContent=running?'計測中です。終わったらストップ':'スタートを押すと計測が始まります';
+}
+
+// 1秒ごとの軽い更新
+function tickTimer(){
+  const sec=elapsedSec();
+  const e1=document.getElementById('tmElapHome'); if(e1) e1.textContent=fmtHMS(sec);
+  const e2=document.getElementById('tmElapBig'); if(e2) e2.textContent=fmtHMS(sec);
+  renderTimeStats();
+}
+
+function renderTimeStats(){
+  const td=ymd(new Date()), run=runningMin();
+  const total=sumMin()+run;
+  const dayMin=sumMin(td,td)+run;
+  const n=new Date(), dow=(n.getDay()+6)%7;
+  const ws=new Date(n); ws.setDate(n.getDate()-dow);
+  const week=sumMin(ymd(ws),td)+run;
+  const month=sumMin(td.slice(0,8)+'01',td)+run;
+  const set=function(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; };
+  const big=document.getElementById('tmTotalBig');
+  if(big){
+    const h=Math.floor(total/60), mi=total%60;
+    big.innerHTML='<span style="font-size:46px;">'+h+'</span><span class="tm-total-unit"> 時間 </span>'
+                 +'<span style="font-size:27px;">'+mi+'</span><span class="tm-total-unit"> 分</span>';
+  }
+  set('tmStatToday',fmtMin(dayMin));
+  set('tmStatWeek',fmtMin(week));
+  set('tmStatMonth',fmtMin(month));
+  set('tmTodayHome',fmtMin(dayMin));
+  set('tmTotalHome',fmtMin(total));
+  const days=new Set(timeRecs().filter(r=>(r.min||0)>0).map(r=>r.date)).size;
+  set('tmStatDays',days+'日');
+  set('tmStatAvg',days?fmtMin(sumMin()/days):'0分');
+}
+
+function renderTimeBars(){
+  const el=document.getElementById('tmBars'); if(!el) return;
+  const wd=['日','月','火','水','木','金','土'];
+  const n=new Date(), td=ymd(n), days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(n); d.setDate(n.getDate()-i);
+    const key=ymd(d);
+    let min=sumMin(key,key);
+    if(key===td) min+=runningMin();
+    days.push({key:key,label:wd[d.getDay()],min:min});
+  }
+  const max=Math.max(60,...days.map(d=>d.min));
+  el.innerHTML=days.map(function(d){
+    const h=Math.max(3,Math.round(d.min/max*62));
+    const lbl=d.min>=60 ? (Math.round(d.min/6)/10)+'h' : (d.min?d.min+'分':'');
+    return '<div class="tm-bar-col">'
+      +'<div class="tm-bar-min">'+lbl+'</div>'
+      +'<div class="tm-bar'+(d.min?'':' zero')+'" style="height:'+h+'px;"></div>'
+      +'<div class="tm-bar-day'+(d.key===td?' tdy':'')+'">'+d.label+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// 記録一覧（今日と前日は開いた状態、それより前は畳む）
+let tmOpenOlder=false, tmOpenMonth={}, tmOpenDay={};
+function tmToggleOlder(){ tmOpenOlder=!tmOpenOlder; renderTimeList(); }
+function tmToggleMonth(k){ tmOpenMonth[k]=!tmOpenMonth[k]; renderTimeList(); }
+function tmToggleDay(k){ tmOpenDay[k]=!tmOpenDay[k]; renderTimeList(); }
+
+function hhmm(iso){ const d=new Date(iso); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+function tmDayLabel(key){
+  const wd=['日','月','火','水','木','金','土'];
+  const d=new Date(key+'T00:00:00');
+  return (d.getMonth()+1)+'月'+d.getDate()+'日（'+wd[d.getDay()]+'）';
+}
+// 時刻の早い順。手で追加した分（時刻なし）は最後に
+function tmSortSes(list){
+  return list.slice().sort(function(a,b){ const A=a.s||'~', B=b.s||'~'; return A<B?-1:(A>B?1:0); });
+}
+function tmSumOf(list){ return list.reduce(function(a,r){ return a+(r.min||0); },0); }
+function tmSesHtml(list){
+  return list.map(function(r){
+    const t=(r.s&&r.e)?(hhmm(r.s)+'〜'+hhmm(r.e)):'手で追加';
+    return '<div class="tm-ses"><span>'+t+'</span>'
+      +'<span style="display:flex;align-items:center;gap:6px;">'
+      +'<strong style="color:var(--text);font-size:12px;margin-right:3px;">'+fmtMin(r.min)+'</strong>'
+      +'<button class="tm-ses-del" onclick="openRecModal(&#39;'+r.id+'&#39;)">✏️</button>'
+      +'<button class="tm-ses-del" onclick="deleteTimeRec(&#39;'+r.id+'&#39;)">✕</button></span></div>';
+  }).join('');
+}
+function tmArrow(open){ return '<span class="tm-fold-ar'+(open?' open':'')+'">▶</span>'; }
+
+function renderTimeList(){
+  const el=document.getElementById('tmList'); if(!el) return;
+  const recs=timeRecs();
+  if(!recs.length){
+    el.innerHTML='<div class="empty">まだ記録がありません。<br>スタートを押して始めましょう！</div>';
+    return;
+  }
+  const byDate={};
+  recs.forEach(function(r){ (byDate[r.date]=byDate[r.date]||[]).push(r); });
+  const dates=Object.keys(byDate).sort().reverse();
+
+  const n=new Date(), td=ymd(n);
+  const y=new Date(n); y.setDate(n.getDate()-1);
+  const yst=ymd(y);
+  const recent=dates.filter(function(k){ return k>=yst; });
+  const older=dates.filter(function(k){ return k<yst; });
+
+  let html='';
+  // 今日・前日はそのまま見せる
+  html+=recent.map(function(key){
+    const list=tmSortSes(byDate[key]);
+    const badge=(key===td)?'<span class="tm-badge">今日</span>':'';
+    return '<div class="tm-day"><div class="tm-day-head">'
+      +'<span class="tm-day-date">'+tmDayLabel(key)+badge+'</span>'
+      +'<span class="tm-day-sum">'+fmtMin(tmSumOf(list))+'</span></div>'
+      +tmSesHtml(list)+'</div>';
+  }).join('');
+  if(!recent.length) html+='<div class="tm-none">今日と昨日はまだ記録がありません。</div>';
+
+  // それより前は畳んでおく
+  if(older.length){
+    let oMin=0; older.forEach(function(k){ oMin+=tmSumOf(byDate[k]); });
+    html+='<button class="tm-fold" onclick="tmToggleOlder()">'+tmArrow(tmOpenOlder)
+      +'<span class="tm-fold-ttl">それより前の記録</span>'
+      +'<span class="tm-fold-sub">'+older.length+'日 ・ '+fmtMin(oMin)+'</span></button>';
+    if(tmOpenOlder){
+      const months={};
+      older.forEach(function(k){ const m=k.slice(0,7); (months[m]=months[m]||[]).push(k); });
+      const mkeys=Object.keys(months).sort().reverse();
+      html+='<div class="tm-fold-body">'+mkeys.map(function(m){
+        const dks=months[m];
+        let mMin=0; dks.forEach(function(k){ mMin+=tmSumOf(byDate[k]); });
+        const label=m.slice(0,4)+'年'+parseInt(m.slice(5,7),10)+'月';
+        let out='<button class="tm-fold tm-fold-m" onclick="tmToggleMonth(&#39;'+m+'&#39;)">'
+          +tmArrow(tmOpenMonth[m])
+          +'<span class="tm-fold-ttl">'+label+'</span>'
+          +'<span class="tm-fold-sub">'+dks.length+'日 ・ '+fmtMin(mMin)+'</span></button>';
+        if(tmOpenMonth[m]){
+          out+='<div class="tm-fold-body">'+dks.map(function(k){
+            const list=tmSortSes(byDate[k]);
+            let row='<button class="tm-drow" onclick="tmToggleDay(&#39;'+k+'&#39;)">'
+              +tmArrow(tmOpenDay[k])
+              +'<span class="tm-drow-date">'+tmDayLabel(k)+'</span>'
+              +'<span class="tm-drow-sum">'+fmtMin(tmSumOf(list))+'</span></button>';
+            if(tmOpenDay[k]) row+='<div class="tm-drow-body">'+tmSesHtml(list)+'</div>';
+            return row;
+          }).join('')+'</div>';
+        }
+        return out;
+      }).join('')+'</div>';
+    }
+  }
+  el.innerHTML=html;
+}
+
+function deleteTimeRec(id){
+  if(!confirm('この記録を削除しますか？')) return;
+  state.timeLog=timeRecs().filter(r=>r.id!==id);
+  saveState(); renderTime(); showToast('削除しました');
+}
+
+// 手で追加・あとから編集（同じ画面を使う）
+let editingRecId=null;
+function openRecModal(id){
+  editingRecId=id||null;
+  const r=id?timeRecs().find(function(x){ return x.id===id; }):null;
+  document.getElementById('recModalTtl').textContent=r?'⏱ 記録を直す':'⏱ 勉強時間を追加';
+  document.getElementById('recDeleteRow').style.display=r?'block':'none';
+  document.getElementById('recDate').value=r?r.date:ymd(new Date());
+  const hasTime=!!(r&&r.s&&r.e);
+  document.getElementById('recStart').value=hasTime?hhmm(r.s):'';
+  document.getElementById('recEnd').value=hasTime?hhmm(r.e):'';
+  document.getElementById('recHour').value=(r&&!hasTime)?Math.floor((r.min||0)/60):'';
+  document.getElementById('recMin').value=(r&&!hasTime)?((r.min||0)%60):'';
+  recPreview();
+  document.getElementById('modalRec').classList.add('on');
+}
+function closeRecModal(){ document.getElementById('modalRec').classList.remove('on'); }
+document.getElementById('modalRec').addEventListener('click',function(e){ if(e.target===this)closeRecModal(); });
+
+// 入力欄から「日付・開始・終了・分数」を組み立てる
+// 開始と終了が両方入っていればそちらを使い、なければ「時間・分」を使う
+function recValues(){
+  const date=document.getElementById('recDate').value||ymd(new Date());
+  const t1=document.getElementById('recStart').value;
+  const t2=document.getElementById('recEnd').value;
+  if(t1&&t2){
+    if(t1===t2) return {date:date,s:null,e:null,min:0,same:true,nextDay:false};
+    const st=new Date(date+'T'+t1+':00');
+    const en=new Date(date+'T'+t2+':00');
+    let nextDay=false;
+    if(en<st){ en.setDate(en.getDate()+1); nextDay=true; } // 日付をまたいだ勉強
+    return {date:date,s:st.toISOString(),e:en.toISOString(),
+            min:Math.round((en-st)/60000),same:false,nextDay:nextDay};
+  }
+  const h=parseInt(document.getElementById('recHour').value,10)||0;
+  const m=parseInt(document.getElementById('recMin').value,10)||0;
+  return {date:date,s:null,e:null,min:h*60+m,same:false,nextDay:false};
+}
+function recPreview(){
+  const el=document.getElementById('recPrev'); if(!el) return;
+  const v=recValues();
+  if(v.same){ el.className='rec-prev warn'; el.textContent='始まりと終わりが同じ時刻です'; return; }
+  if(v.min<=0){ el.className='rec-prev warn'; el.textContent='時間を入れてください'; return; }
+  el.className='rec-prev';
+  el.textContent='この記録は '+fmtMin(v.min)+' になります'+(v.nextDay?'（終わりは翌日あつかい）':'');
+}
+function saveRec(){
+  const v=recValues();
+  if(v.same){ showToast('始まりと終わりが同じ時刻です'); return; }
+  if(v.min<=0){ showToast('時間を入れてください'); return; }
+  if(editingRecId){
+    const r=timeRecs().find(function(x){ return x.id===editingRecId; });
+    if(r){ r.date=v.date; r.s=v.s; r.e=v.e; r.min=v.min; }
+    showToast('記録を直しました（'+fmtMin(v.min)+'）');
+  } else {
+    timeRecs().push({id:uid(),date:v.date,s:v.s,e:v.e,min:v.min});
+    showToast(fmtMin(v.min)+' を追加しました⏱');
+  }
+  saveState(); closeRecModal(); renderTime();
+}
+function deleteRecFromModal(){
+  if(!editingRecId||!confirm('この記録を削除しますか？')) return;
+  state.timeLog=timeRecs().filter(function(r){ return r.id!==editingRecId; });
+  saveState(); closeRecModal(); renderTime(); showToast('削除しました');
+}
+
+function resetTimeLog(){
+  if(!confirm('勉強時間の記録をすべて削除しますか？\nこの操作は元に戻せません。')) return;
+  state.timeLog=[]; state.timerStart=null;
+  saveState(); renderTime(); showToast('勉強時間の記録をリセットしました');
 }
 
 // ========== 科目ボタン ==========
@@ -1224,7 +1953,7 @@ function renderKodan(){
     return `<div class="kodan-group-card">
       <div class="kodan-group-head">
         <div class="kodan-group-kw">🔗 ${escHtml(kw)}</div>
-        <div class="kodan-group-count">${cards.length}科目</div>
+        <div class="kodan-group-count">${new Set(cards.map(c=>c.subjId)).size}科目</div>
       </div>
       <div class="kodan-group-cards">${cardHtml}</div>
     </div>`;
@@ -1292,41 +2021,46 @@ function injectDummy(){
     {id:'f13',subjId:'kenpo',content:'健康保険 被保険者資格取得届\n提出期限：資格取得日から5日以内\n提出先：日本年金機構（事務センター）',next:'雇用の翌月10日と混同した。健保・厚年は「5日以内」',reasons:['r1','r3'],reasonCustom:'',keywords:['資格取得の申請期限']},
   ];
   state.kodanCards=[];
+  state.seeded=true;
   saveState();
 }
 
 function resetStudyLog(){
   if(!confirm('学習記録をリセットしますか？\n論点カードは残ります。\nこの操作は元に戻せません。')) return;
-  state.studyLog={};
+  state.studyLog={}; state.seeded=true;
   saveState(); renderSubjGrid();
   showToast('学習記録をリセットしました');
 }
 function resetFutoCards(){
   if(!confirm('論点カードをすべて削除しますか？\n学習記録は残ります。\nこの操作は元に戻せません。')) return;
-  state.futoCards=[]; state.kodanCopies={}; state.kodanMemos={};
+  state.futoCards=[]; state.kodanCopies={}; state.kodanMemos={}; state.seeded=true;
   saveState();
   showToast('論点カードをリセットしました');
 }
 function resetAllData(){
   if(!confirm('すべてのデータを削除して最初からやり直しますか？\nこの操作は元に戻せません。')) return;
   localStorage.removeItem('sharoshi_v4');
-  state={ studyLog:{}, futoCards:[], kodanCards:[], kodanCopies:{}, kodanMemos:{} };
+  state={ seeded:true, examDate:null, studyLog:{}, futoCards:[], kodanCards:[], kodanCopies:{}, kodanMemos:{}, timeLog:[], timerStart:null };
   saveState();
   renderSubjGrid();
   renderHeader();
   renderPhaseBar();
+  renderTime();
   showToast('データをリセットしました');
   showPage('Home', document.querySelector('.nav-btn'));
 }
 
 // ========== 初期化 ==========
 loadState();
-if(!state.studyLog||Object.keys(state.studyLog).length===0) injectDummy();
+// サンプルデータは「まだ一度も入れていない」かつ「記録もカードも空」のときだけ入れる
+if(!state.seeded && Object.keys(state.studyLog||{}).length===0 && (state.futoCards||[]).length===0) injectDummy();
 renderHeader();
 renderPhaseBar();
 renderSubjGrid();
 loadMotiv();
+renderTime();
 setInterval(()=>{ renderHeader(); renderPhaseBar(); },60000);
+setInterval(()=>{ if(state.timerStart) tickTimer(); },1000);
 </script>
 </body>
 </html>
