@@ -279,6 +279,50 @@ textarea.inp{resize:none;}
 .tm-drow-date{font-size:12px;color:var(--text);flex:1;}
 .tm-drow-sum{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;font-variant-numeric:lining-nums;}
 .tm-drow-body{border-bottom:1px solid var(--border);background:var(--bg);}
+/* ===== 問題数カウント ===== */
+.q-row{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;
+  font-family:inherit;cursor:pointer;text-align:left;padding:2px;}
+.q-row:active{opacity:.6;}
+.q-row-lbl{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+.q-row-num{font-family:'Kaisei Decol',serif;font-size:22px;font-weight:700;color:var(--accent);
+  font-variant-numeric:lining-nums;-webkit-text-size-adjust:100%;}
+.q-row-unit{font-size:11px;color:var(--sub);font-weight:700;margin-left:2px;}
+.q-plus{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;line-height:1;}
+.q-total{text-align:center;padding:2px 0 4px;}
+.q-total-num{font-family:'Kaisei Decol',serif;font-size:42px;font-weight:700;color:var(--accent);
+  font-variant-numeric:lining-nums;-webkit-text-size-adjust:100%;}
+.q-total-unit{font-size:15px;color:var(--text);}
+.qbar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:#e8e4dc;margin-top:12px;}
+.qbar-seg{height:100%;}
+.q-legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin-top:12px;}
+.q-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;}
+.q-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.q-legend-name{color:var(--text);flex:1;}
+.q-legend-num{color:var(--sub);font-weight:700;font-variant-numeric:lining-nums;white-space:nowrap;}
+.q-random{width:100%;margin-top:7px;border:2px solid var(--border);border-radius:8px;
+  padding:10px 4px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
+  background:var(--surface);color:var(--text);transition:all .15s;}
+.q-random.on{background:#a9a29a;color:#fff;border-color:#a9a29a;}
+.goal-bar{height:15px;border-radius:8px;background:#e8e4dc;overflow:hidden;margin:11px 0 9px;}
+.goal-fill{height:100%;background:var(--accent);border-radius:8px;}
+.goal-line{font-size:14px;font-weight:700;text-align:center;font-variant-numeric:lining-nums;}
+.goal-msg{font-size:12px;color:var(--accent);font-weight:700;text-align:center;margin-top:8px;}
+.goal-sub{font-size:11px;color:var(--sub);text-align:center;margin-top:7px;line-height:1.7;}
+.goal-set-btn{width:100%;padding:13px;border:2px dashed var(--border);border-radius:14px;
+  background:none;font-size:13px;color:var(--sub);cursor:pointer;font-family:inherit;}
+.goal-set-btn:active{background:var(--bg);}
+.q-neg-row{display:flex;align-items:center;gap:9px;padding:10px 4px;border-bottom:1px solid var(--border);}
+.q-neg-row:last-child{border-bottom:none;}
+.q-neg-name{flex:1;font-size:12px;font-weight:700;}
+.q-neg-days{font-size:11px;font-weight:700;white-space:nowrap;}
+.q-neg-days.warn{color:#c0392b;}
+.q-neg-days.ok{color:var(--sub);}
+.q-quick{display:flex;gap:6px;margin-top:8px;}
+.q-quick button{flex:1;padding:8px 0;border:1.5px solid var(--border);border-radius:10px;
+  background:var(--surface);font-family:inherit;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;}
+.q-quick button:active{background:var(--bg);}
+.q-quick .q-clear{flex:0 0 auto;padding-left:10px;padding-right:10px;font-size:11px;color:var(--sub);}
 .rec-prev{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;
   font-weight:700;text-align:center;margin-bottom:14px;line-height:1.6;}
 .rec-prev.warn{color:#c0392b;}
@@ -410,9 +454,54 @@ textarea.inp{resize:none;}
       </button>
     </div>
   </div>
+  <!-- 解いた問題数 -->
+  <div class="card" style="padding:13px 16px;">
+    <button class="q-row" onclick="openQModal()">
+      <span class="q-row-lbl" id="qHomeLbl">✏️ 今日は何問解いた？</span>
+      <span><span class="q-row-num" id="qHomeNum">0</span><span class="q-row-unit">問</span></span>
+      <span class="q-plus">＋</span>
+    </button>
+  </div>
   <div class="card">
     <div class="card-ttl">📖 やったことをタップ！</div>
     <div class="subj-grid" id="subjGrid"></div>
+  </div>
+</div>
+
+<!-- 問題数 -->
+<div class="page" id="pageQ">
+  <div class="card">
+    <div class="card-ttl">✏️ 解いた問題数</div>
+    <div class="q-total"><span class="q-total-num" id="qTotalNum">0</span><span class="q-total-unit"> 問</span></div>
+    <div class="qbar" id="qBar"></div>
+    <div class="q-legend" id="qLegend"></div>
+    <div class="tm-stat-row">
+      <div class="tm-stat"><div class="tm-stat-lbl">今日</div><div class="tm-stat-val" id="qStatToday">0問</div></div>
+      <div class="tm-stat"><div class="tm-stat-lbl">今週（月〜）</div><div class="tm-stat-val" id="qStatWeek">0問</div></div>
+      <div class="tm-stat"><div class="tm-stat-lbl">今月</div><div class="tm-stat-val" id="qStatMonth">0問</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">🎯 目標</div>
+    <div id="qGoalBody"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">📊 直近7日間</div>
+    <div class="tm-bars" id="qBars"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">⚠️ しばらく解いていない科目</div>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:6px;line-height:1.6;">解いていない日数が長い順に5つ</div>
+    <div id="qNeglect"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">📝 記録</div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:12px;" onclick="openQModal()">＋ 手で記録を追加する</button>
+    <div id="qFoldWrap"></div>
   </div>
 </div>
 
@@ -490,6 +579,9 @@ textarea.inp{resize:none;}
   </button>
   <button class="nav-btn" id="navTimeBtn" onclick="showPage('Time',this)">
     <span class="ic">⏱</span>時間管理
+  </button>
+  <button class="nav-btn" onclick="showPage('Q',this)">
+    <span class="ic">✏️</span>問題数
   </button>
   <button class="nav-btn" onclick="showPage('Futo',this)">
     <span class="ic">📌</span>論点カード
@@ -599,6 +691,67 @@ textarea.inp{resize:none;}
   </div>
 </div>
 
+<!-- モーダル: 目標の問題数 -->
+<div class="modal-bg" id="modalGoal">
+  <div class="modal">
+    <div class="modal-ttl">🎯 目標の問題数</div>
+    <div style="font-size:11px;color:var(--sub);line-height:1.7;background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+      試験までに何問解くかを決めておくと、進み具合が見えます。あとから何度でも変えられます。
+    </div>
+    <div class="form-row">
+      <label class="form-label">目標の問題数</label>
+      <input class="inp" id="goalNum" type="number" min="1" max="99999" inputmode="numeric" placeholder="例：3000" style="text-align:center;font-size:18px;font-weight:700;">
+      <div class="q-quick">
+        <button onclick="goalSet(1000)">1000</button>
+        <button onclick="goalSet(3000)">3000</button>
+        <button onclick="goalSet(5000)">5000</button>
+        <button onclick="goalSet(10000)">10000</button>
+      </div>
+    </div>
+    <div id="goalClearRow" style="display:none;margin-bottom:8px;">
+      <button class="btn btn-danger" style="width:100%;justify-content:center;" onclick="clearGoal()">🎯 目標をなくす</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeGoalModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveGoal()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 解いた問題数 -->
+<div class="modal-bg" id="modalQ">
+  <div class="modal">
+    <div class="modal-ttl" id="qModalTtl">✏️ 解いた問題数を記録</div>
+    <div class="form-row">
+      <label class="form-label">科目</label>
+      <div class="subj-select-grid" id="qSubjGrid"></div>
+      <button class="q-random" id="qRandomBtn" onclick="selectQSubj('__random')">🎲 ランダム（科目を分けない）</button>
+    </div>
+    <div class="form-row">
+      <label class="form-label">問題数</label>
+      <input class="inp" id="qNum" type="number" min="1" max="9999" inputmode="numeric" placeholder="例：20" style="text-align:center;font-size:18px;font-weight:700;">
+      <div class="q-quick">
+        <button onclick="qAdd(10)">＋10</button>
+        <button onclick="qAdd(20)">＋20</button>
+        <button onclick="qAdd(30)">＋30</button>
+        <button onclick="qAdd(50)">＋50</button>
+        <button class="q-clear" onclick="qClear()">クリア</button>
+      </div>
+    </div>
+    <div class="form-row" id="qDateRow" style="display:none;">
+      <label class="form-label">日付</label>
+      <input class="inp" id="qDate" type="date">
+    </div>
+    <div id="qDeleteRow" style="display:none;margin-bottom:8px;">
+      <button class="btn btn-danger" style="width:100%;justify-content:center;" onclick="deleteQFromModal()">🗑️ この記録を削除</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeQModal()">キャンセル</button>
+      <button class="btn btn-accent" onclick="saveQ()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- モーダル: 勉強時間の追加・編集 -->
 <div class="modal-bg" id="modalRec">
   <div class="modal">
@@ -693,6 +846,8 @@ let state = {
   examDate: null,   // 試験日（未設定なら DEFAULT_EXAM_DATE を使う）
   studyLog: {},
   timeLog: [],      // 勉強時間の記録 [{id,date,s,e,min}]
+  qLog: [],         // 解いた問題数の記録 [{id,date,subjId,n}]
+  qGoal: null,      // 目標の問題数（未設定ならnull）
   timerStart: null, // 計測中の開始時刻（ISO文字列）。アプリを閉じても続く
   futoCards: [],
   kodanCards: [],
@@ -748,6 +903,7 @@ function showPage(name,btn){
   if(name==='Futo') renderFuto();
   if(name==='Kodan') renderKodan();
   if(name==='Time') renderTime();
+  if(name==='Q') renderQ();
   if(name==='Help') renderHelp();
 }
 
@@ -756,7 +912,7 @@ function renderHelp(){
   document.getElementById('helpContent').innerHTML=`
   <div class="help-hero">
     <div class="help-hero-title">📚 使い方ガイド</div>
-    <div class="help-hero-sub">ホーム・時間管理・論点カード・横断の4つのタブを使います。<br>論点カードを育てながら、8月の試験に向けて<br>苦手を確実に潰していきましょう！</div>
+    <div class="help-hero-sub">ホーム・時間管理・問題数・論点カード・横断の5つのタブを使います。<br>論点カードを育てながら、8月の試験に向けて<br>苦手を確実に潰していきましょう！</div>
   </div>
 
   <!-- 全体像 -->
@@ -777,26 +933,33 @@ function renderHelp(){
         <div class="help-step">
           <div class="help-step-num">2</div>
           <div class="help-step-body">
+            <div class="help-step-title">解いた問題数を入れる</div>
+            <div class="help-step-desc">「今日は何問解いた？」をタップして、科目と問題数を入れるだけ。累計がたまっていきます。</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <div class="help-step-body">
             <div class="help-step-title">やったことをホームで記録</div>
             <div class="help-step-desc">科目ボタンをタップするだけ。何日放置しているかが見えます。</div>
           </div>
         </div>
         <div class="help-step">
-          <div class="help-step-num">3</div>
+          <div class="help-step-num">4</div>
           <div class="help-step-body">
             <div class="help-step-title">間違えたら論点カードに追加</div>
             <div class="help-step-desc">「論点」と「なぜ間違えたか・引っかけポイント」を付箋感覚でペタっと。</div>
           </div>
         </div>
         <div class="help-step">
-          <div class="help-step-num">4</div>
+          <div class="help-step-num">5</div>
           <div class="help-step-body">
             <div class="help-step-title">横断論点に気づいたらキーワードを追加</div>
             <div class="help-step-desc">「あ、これ他の科目でも出てくる！」と思ったら横断キーワードを入力。横断タブで自動グループ化されます。</div>
           </div>
         </div>
         <div class="help-step">
-          <div class="help-step-num">5</div>
+          <div class="help-step-num">6</div>
           <div class="help-step-body">
             <div class="help-step-title">試験直前にこのアプリで総復習</div>
             <div class="help-step-desc">集まった論点カード＝自分だけの弱点集。8月にここを見返せばOK！</div>
@@ -861,6 +1024,24 @@ function renderHelp(){
         <p>1分未満のときは記録されません。7時間以上になったときは「押し忘れではないですか？」と確認が出ます。</p>
         <p>夜ふかしして日付をまたいだときは、<strong>まるごと「始めた日」の記録</strong>になります（23:00〜01:30なら2時間30分がその前日の分）。日付ごとに分けたいときは、あとから✏️で直せます。</p>
         <div class="help-tip">くわしい合計やグラフ、記録の一覧は「時間管理」タブで見られます。</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">✏️ 今日は何問解いた？</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:11px 13px;">
+            <span style="font-size:13px;font-weight:700;flex:1;">✏️ 今日解いた問題</span>
+            <span><span style="font-family:'Kaisei Decol',serif;font-size:20px;font-weight:700;color:var(--accent);">24</span><span style="font-size:11px;color:var(--sub);font-weight:700;">問</span></span>
+            <span style="width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:17px;">＋</span>
+          </div>
+        </div>
+        <p>タイマーの下にある行をタップすると、解いた問題数を入れられます。</p>
+        <p>入力画面では<strong>科目を選んで、問題数を入れるだけ</strong>です。その日の分として記録されるので、日付を入れる手間はありません。</p>
+        <p>アプリの模試のように<strong>いろいろな科目がまざった問題</strong>を解いたときは、科目の下にある<strong>「🎲 ランダム（科目を分けない）」</strong>を選んでください。科目を分けずに、そのまま問題数として数えられます。</p>
+        <p>下の「＋10・＋20・＋30・＋50」は<strong>押すたびに足されます。</strong>10を5回押せば50、＋20と＋30で50、という具合です。数えながら押していけるので、キーボードを出さずに入れられます。まちがえたら「クリア」で0に戻せます。</p>
+        <p>何回でも足せます。朝に20問、夜に30問と入れれば、その日は50問になります。</p>
+        <div class="help-tip">累計・目標・科目ごとの内訳は「問題数」タブで見られます。</div>
       </div>
     </div>
     <div class="help-card">
@@ -970,6 +1151,86 @@ function renderHelp(){
         <p>いらない記録は<strong>✕</strong>で1回ずつ消せます（確認メッセージが出ます）。</p>
         <p>夜ふかしして日付をまたいだときは「23:00〜01:00」のように入れれば2時間として計算します（終わりは翌日あつかい）。記録はその日（始めた日）に入ります。</p>
         <div class="help-tip">畳んだ・開いたの状態は覚えていません。次に開いたときはまた「今日と昨日だけ」のすっきりした形に戻ります。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 問題数タブ -->
+  <div class="help-section">
+    <div class="help-section-head">
+      <div class="help-section-icon">✏️</div>
+      <div class="help-section-title">問題数タブ</div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">✏️ 解いた問題数と、科目ごとの内訳</div>
+      <div class="help-card-body">
+        <div class="mock" style="text-align:center;">
+          <div><span style="font-family:'Kaisei Decol',serif;font-size:34px;font-weight:700;color:var(--accent);">1,240</span><span style="font-size:13px;"> 問</span></div>
+          <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;background:#e8e4dc;margin-top:10px;">
+            <div style="width:26%;background:#f28b82;"></div><div style="width:21%;background:#f07ba8;"></div>
+            <div style="width:18%;background:#42b0d8;"></div><div style="width:15%;background:#3ec9bc;"></div>
+            <div style="width:12%;background:#5dbf85;"></div><div style="width:8%;background:#f0a83a;"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin-top:10px;text-align:left;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:9px;height:9px;border-radius:3px;background:#f28b82;"></span><span style="flex:1;">労基</span><span style="color:var(--sub);font-weight:700;">320問</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:9px;height:9px;border-radius:3px;background:#f07ba8;"></span><span style="flex:1;">健保</span><span style="color:var(--sub);font-weight:700;">260問</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:9px;height:9px;border-radius:3px;background:#42b0d8;"></span><span style="flex:1;">雇用</span><span style="color:var(--sub);font-weight:700;">225問</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;"><span style="width:9px;height:9px;border-radius:3px;background:#3ec9bc;"></span><span style="flex:1;">厚年</span><span style="color:var(--sub);font-weight:700;">185問</span></div>
+          </div>
+        </div>
+        <p>いちばん上に<strong>これまでに解いた問題数の合計</strong>が出ます。</p>
+        <p>その下の1本の帯が科目ごとの内訳です。解くほど、その科目の色がのびていきます。<strong>色の幅を見れば「この科目だけ手をつけていない」がすぐわかります。</strong></p>
+        <p>まちがえて入れたときは、下の<strong>「記録をなおす」</strong>をタップすると一覧が出るので、✏️で直す・✕で消すができます。ふだんは畳んであります。</p>
+        <p>前の日の分を入れ忘れたときも、いったん保存してから「記録をなおす」で✏️を押せば、<strong>日付を直せます</strong>（直すときだけ日付の欄が出ます）。</p>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">🎯 目標を決めると、あとどれくらいかが見える</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="font-size:14px;font-weight:700;text-align:center;">2,400 / 3,000 問（80%）</div>
+          <div style="height:14px;border-radius:7px;background:#e8e4dc;overflow:hidden;margin:10px 0 8px;">
+            <div style="height:100%;width:80%;background:var(--accent);border-radius:7px;"></div>
+          </div>
+          <div style="font-size:12px;color:var(--accent);font-weight:700;text-align:center;">ゴールが見えてきました。あと600問！</div>
+          <div style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px;">試験まであと120日。1日あたり5問のペースです。</div>
+        </div>
+        <p>「🎯 目標を決める」を押して、<strong>試験までに何問解くかを入れます。</strong>「1000・3000・5000・10000」のボタンもあります。</p>
+        <p>決めると、こんなふうに進み具合が出ます。</p>
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9;color:var(--sub);">
+          ・今どこまで来たか（○○ / ○○問と％）<br>
+          ・オレンジのバーが目標に向かってのびていきます<br>
+          ・「あと600問！」のように残りの数<br>
+          ・<strong>試験日から逆算した「1日あたり○問」のペース</strong>
+        </div>
+        <p>目標に届いたら「🎉 目標達成！」と出ます。目標はあとから何度でも変えられますし、「目標をなくす」で消すこともできます。</p>
+        <div class="help-tip">最初から大きい数にしなくて大丈夫です。「まず1000問」から始めて、届いたら増やすのがおすすめです。</div>
+      </div>
+    </div>
+    <div class="help-card">
+      <div class="help-card-head">📊 直近7日間 ／ ⚠️ しばらく解いていない科目</div>
+      <div class="help-card-body">
+        <div class="mock">
+          <div style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid var(--border);">
+            <span style="width:9px;height:9px;border-radius:3px;background:#9b72d0;"></span>
+            <span style="flex:1;font-size:12px;font-weight:700;">徴収</span>
+            <span style="font-size:11px;font-weight:700;color:#c0392b;">30日 解いてない…</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid var(--border);">
+            <span style="width:9px;height:9px;border-radius:3px;background:#3ec9bc;"></span>
+            <span style="flex:1;font-size:12px;font-weight:700;">厚年</span>
+            <span style="font-size:11px;font-weight:700;color:#c0392b;">20日 解いてない…</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:8px 4px;">
+            <span style="width:9px;height:9px;border-radius:3px;background:#5aaee8;"></span>
+            <span style="flex:1;font-size:12px;font-weight:700;">社一</span>
+            <span style="font-size:11px;font-weight:700;color:var(--sub);">6日前</span>
+          </div>
+        </div>
+        <p><strong>直近7日間</strong>は、この1週間で毎日何問解いたかの棒グラフです。今日が右端で、今日の曜日だけ色が変わります。</p>
+        <p><strong>しばらく解いていない科目</strong>は、最後に解いた日から日数が長い順に5つ出ます。7日以上あいた科目と、まだ一度も解いていない科目は赤字になります。</p>
+        <p>ホームの「テキスト読んだ・問題解いた」の放置表示と同じ考え方ですが、こちらは<strong>実際に入れた問題数がもと</strong>になっています。</p>
+        <div class="help-tip">「🎲 ランダム」で入れた分は科目に振り分けられないので、この一覧の日数は動きません。科目ごとの演習が足りているかを見るための表示です。</div>
       </div>
     </div>
   </div>
@@ -1165,6 +1426,10 @@ function renderHelp(){
         <p style="font-size:13px;margin-bottom:8px;">📌 論点カードだけリセット（学習記録は残る）</p>
         <button onclick="resetFutoCards()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
           📌 論点カードをリセットする
+        </button>
+        <p style="font-size:13px;margin-bottom:8px;">✏️ 問題数の記録だけリセット</p>
+        <button onclick="resetQLog()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
+          ✏️ 問題数をリセットする
         </button>
         <p style="font-size:13px;margin-bottom:8px;">⏱ 勉強時間の記録だけリセット</p>
         <button onclick="resetTimeLog()" style="width:100%;padding:12px;background:none;border:2px solid #e67e22;border-radius:12px;color:#e67e22;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;">
@@ -1588,6 +1853,263 @@ function resetTimeLog(){
   if(!confirm('勉強時間の記録をすべて削除しますか？\nこの操作は元に戻せません。')) return;
   state.timeLog=[]; state.timerStart=null;
   saveState(); renderTime(); showToast('勉強時間の記録をリセットしました');
+}
+
+// ========== 解いた問題数 ==========
+// アプリの模試などで科目を分けずに解いたとき用の入れもの
+const RANDOM_SUBJ = {id:'__random', name:'ランダム', color:'#a9a29a'};
+function qSubjList(){ return SUBJECTS.concat([RANDOM_SUBJ]); }
+function qSubjById(id){ return id===RANDOM_SUBJ.id ? RANDOM_SUBJ : subjById(id); }
+function qRecs(){ if(!Array.isArray(state.qLog)) state.qLog=[]; return state.qLog; }
+function qSum(from,to){
+  return qRecs()
+    .filter(r=>(!from||r.date>=from)&&(!to||r.date<=to))
+    .reduce((a,r)=>a+(r.n||0),0);
+}
+function qNumFmt(n){ return (n||0).toLocaleString('ja-JP'); }
+// 科目ごとの合計（ホームの科目と同じ並び順・最後にランダム、0問の科目は出さない）
+function qBySubject(){
+  const m={};
+  qRecs().forEach(function(r){ m[r.subjId]=(m[r.subjId]||0)+(r.n||0); });
+  return qSubjList().map(function(s){ return {subj:s, n:m[s.id]||0}; })
+    .filter(function(x){ return x.n>0; });
+}
+
+function renderQ(){ renderQHome(); renderQCard(); renderQStats(); renderQGoal(); renderQBars(); renderQNeglect(); }
+
+// 今日・今週・今月
+function renderQStats(){
+  const td=ymd(new Date());
+  const n=new Date(), dow=(n.getDay()+6)%7;
+  const ws=new Date(n); ws.setDate(n.getDate()-dow);
+  const set=function(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('qStatToday', qNumFmt(qSum(td,td))+'問');
+  set('qStatWeek',  qNumFmt(qSum(ymd(ws),td))+'問');
+  set('qStatMonth', qNumFmt(qSum(td.slice(0,8)+'01',td))+'問');
+}
+
+// ===== 目標と進み具合 =====
+function qGoal(){ const g=parseInt(state.qGoal,10); return (g>0)?g:0; }
+function renderQGoal(){
+  const box=document.getElementById('qGoalBody'); if(!box) return;
+  const goal=qGoal();
+  if(!goal){
+    box.innerHTML='<button class="goal-set-btn" onclick="openGoalModal()">🎯 目標を決める</button>'
+      +'<div class="goal-sub">試験までに何問解くか決めると、進み具合が見えます。</div>';
+    return;
+  }
+  const total=qSum();
+  const pct=Math.min(100, Math.round(total/goal*100));
+  const rest=Math.max(0, goal-total);
+  let msg;
+  if(total>=goal) msg='🎉 目標達成！ おつかれさまでした';
+  else if(pct>=75) msg='ゴールが見えてきました。あと'+qNumFmt(rest)+'問！';
+  else if(pct>=50) msg='折り返しました。ここからが本番です';
+  else if(pct>=25) msg='いいペースです。この調子で';
+  else msg='始まりました。まずは1問ずつ';
+  let sub='';
+  if(rest>0){
+    const d=daysLeft();
+    if(d>0) sub='試験まであと'+d+'日。1日あたり'+qNumFmt(Math.ceil(rest/d))+'問のペースです。';
+  }
+  box.innerHTML='<div class="goal-line">'+qNumFmt(total)+' / '+qNumFmt(goal)+' 問（'+pct+'%）</div>'
+    +'<div class="goal-bar"><div class="goal-fill" style="width:'+pct+'%;"></div></div>'
+    +'<div class="goal-msg">'+msg+'</div>'
+    +(sub?'<div class="goal-sub">'+sub+'</div>':'')
+    +'<button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:12px;" onclick="openGoalModal()">🎯 目標を変える</button>';
+}
+function openGoalModal(){
+  document.getElementById('goalNum').value=qGoal()||'';
+  document.getElementById('goalClearRow').style.display=qGoal()?'block':'none';
+  document.getElementById('modalGoal').classList.add('on');
+}
+function closeGoalModal(){ document.getElementById('modalGoal').classList.remove('on'); }
+document.getElementById('modalGoal').addEventListener('click',function(e){ if(e.target===this)closeGoalModal(); });
+function goalSet(n){ document.getElementById('goalNum').value=n; }
+function saveGoal(){
+  const n=parseInt(document.getElementById('goalNum').value,10)||0;
+  if(n<=0){ showToast('目標の問題数を入れてください'); return; }
+  state.qGoal=n; saveState(); closeGoalModal(); renderQ();
+  showToast('目標を'+qNumFmt(n)+'問にしました🎯');
+}
+function clearGoal(){
+  state.qGoal=null; saveState(); closeGoalModal(); renderQ();
+  showToast('目標をなくしました');
+}
+
+// ===== 直近7日間 =====
+function renderQBars(){
+  const el=document.getElementById('qBars'); if(!el) return;
+  const wd=['日','月','火','水','木','金','土'];
+  const n=new Date(), td=ymd(n), days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(n); d.setDate(n.getDate()-i);
+    const key=ymd(d);
+    days.push({key:key,label:wd[d.getDay()],n:qSum(key,key)});
+  }
+  const max=Math.max(10, ...days.map(function(d){ return d.n; }));
+  el.innerHTML=days.map(function(d){
+    const h=Math.max(3, Math.round(d.n/max*62));
+    return '<div class="tm-bar-col">'
+      +'<div class="tm-bar-min">'+(d.n?qNumFmt(d.n):'')+'</div>'
+      +'<div class="tm-bar'+(d.n?'':' zero')+'" style="height:'+h+'px;"></div>'
+      +'<div class="tm-bar-day'+(d.key===td?' tdy':'')+'">'+d.label+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// ===== しばらく解いていない科目 =====
+function qLastDate(subjId){
+  let last=null;
+  qRecs().forEach(function(r){ if(r.subjId===subjId && (!last||r.date>last)) last=r.date; });
+  return last;
+}
+function renderQNeglect(){
+  const el=document.getElementById('qNeglect'); if(!el) return;
+  const list=SUBJECTS.map(function(s){
+    const last=qLastDate(s.id);
+    const ago=last?daysAgo(last):null;
+    return {subj:s, last:last, ago:(ago===null?99999:ago)};
+  }).sort(function(a,b){ return b.ago-a.ago; }).slice(0,5);
+  el.innerHTML=list.map(function(x){
+    let txt, cls;
+    if(!x.last){ txt='まだ解いていません'; cls='warn'; }
+    else if(x.ago===0){ txt='今日'; cls='ok'; }
+    else if(x.ago===1){ txt='昨日'; cls='ok'; }
+    else if(x.ago>=7){ txt=x.ago+'日 解いてない…'; cls='warn'; }
+    else { txt=x.ago+'日前'; cls='ok'; }
+    return '<div class="q-neg-row">'
+      +'<span class="q-dot" style="background:'+x.subj.color+';"></span>'
+      +'<span class="q-neg-name">'+x.subj.name+'</span>'
+      +'<span class="q-neg-days '+cls+'">'+txt+'</span></div>';
+  }).join('');
+}
+
+
+
+function renderQHome(){
+  const td=ymd(new Date()), n=qSum(td,td);
+  const lbl=document.getElementById('qHomeLbl'), num=document.getElementById('qHomeNum');
+  if(lbl) lbl.textContent = n>0 ? '✏️ 今日解いた問題' : '✏️ 今日は何問解いた？';
+  if(num) num.textContent = qNumFmt(n);
+}
+
+function renderQCard(){
+  const total=qSum();
+  const tn=document.getElementById('qTotalNum');
+  if(tn) tn.textContent=qNumFmt(total);
+  const bar=document.getElementById('qBar'), leg=document.getElementById('qLegend');
+  if(!bar||!leg) return;
+  const list=qBySubject();
+  if(!total||!list.length){
+    bar.innerHTML='';
+    leg.innerHTML='<div style="grid-column:1/-1;font-size:12px;color:var(--sub);text-align:center;padding:6px 0;">まだ記録がありません。ホームの「今日は何問解いた？」から入れてみましょう。</div>';
+    renderQFold();
+    return;
+  }
+  bar.innerHTML=list.map(function(x){
+    return '<div class="qbar-seg" style="width:'+(x.n/total*100)+'%;background:'+x.subj.color+';"></div>';
+  }).join('');
+  leg.innerHTML=list.map(function(x){
+    return '<div class="q-legend-item">'
+      +'<span class="q-dot" style="background:'+x.subj.color+';"></span>'
+      +'<span class="q-legend-name">'+x.subj.name+'</span>'
+      +'<span class="q-legend-num">'+qNumFmt(x.n)+'問</span></div>';
+  }).join('');
+  renderQFold();
+}
+
+// 記録をなおす（ふだんは畳んでおく）
+let qOpenFold=false;
+function qToggleFold(){ qOpenFold=!qOpenFold; renderQFold(); }
+function renderQFold(){
+  const w=document.getElementById('qFoldWrap'); if(!w) return;
+  const recs=qRecs();
+  if(!recs.length){ w.innerHTML=''; return; }
+  let html='<button class="tm-fold" style="margin-bottom:0;" onclick="qToggleFold()">'
+    +'<span class="tm-fold-ar'+(qOpenFold?' open':'')+'">▶</span>'
+    +'<span class="tm-fold-ttl">記録をなおす</span>'
+    +'<span class="tm-fold-sub">'+recs.length+'件</span></button>';
+  if(qOpenFold){
+    const sorted=recs.slice().sort(function(a,b){ return a.date<b.date?1:(a.date>b.date?-1:0); }).slice(0,30);
+    html+='<div class="tm-fold-body" style="margin-top:8px;">'+sorted.map(function(r){
+      const s=qSubjById(r.subjId);
+      const d=new Date(r.date+'T00:00:00');
+      return '<div class="tm-ses" style="border-top:none;border-bottom:1px solid var(--border);">'
+        +'<span>'+(d.getMonth()+1)+'/'+d.getDate()+'　<span style="color:'+s.color+';font-weight:700;">'+s.name+'</span></span>'
+        +'<span style="display:flex;align-items:center;gap:6px;">'
+        +'<strong style="color:var(--text);font-size:12px;">'+qNumFmt(r.n)+'問</strong>'
+        +'<button class="tm-ses-del" onclick="openQModal(&#39;'+r.id+'&#39;)">✏️</button>'
+        +'<button class="tm-ses-del" onclick="deleteQ(&#39;'+r.id+'&#39;)">✕</button></span></div>';
+    }).join('')
+    +(recs.length>30?'<div style="font-size:11px;color:var(--sub);text-align:center;padding:8px 0;">新しい30件を表示しています</div>':'')
+    +'</div>';
+  }
+  w.innerHTML=html;
+}
+
+// 入力画面
+let editingQId=null, qSelectedSubj=null;
+function openQModal(id){
+  editingQId=id||null;
+  const r=id?qRecs().find(function(x){ return x.id===id; }):null;
+  document.getElementById('qModalTtl').textContent=r?'✏️ 問題数を直す':'✏️ 解いた問題数を記録';
+  document.getElementById('qDeleteRow').style.display=r?'block':'none';
+  // 追加のときは今日の分。日付は「直すとき」だけ出す
+  document.getElementById('qDateRow').style.display=r?'block':'none';
+  qSelectedSubj = r ? r.subjId : (state.lastQSubj||SUBJECTS[0].id);
+  document.getElementById('qNum').value=r?r.n:'';
+  document.getElementById('qDate').value=r?r.date:ymd(new Date());
+  renderQSubjGrid();
+  document.getElementById('modalQ').classList.add('on');
+}
+function closeQModal(){ document.getElementById('modalQ').classList.remove('on'); }
+document.getElementById('modalQ').addEventListener('click',function(e){ if(e.target===this)closeQModal(); });
+function renderQSubjGrid(){
+  const rb=document.getElementById('qRandomBtn');
+  if(rb) rb.classList.toggle('on', qSelectedSubj===RANDOM_SUBJ.id);
+  document.getElementById('qSubjGrid').innerHTML=SUBJECTS.map(function(s){
+    const on=qSelectedSubj===s.id;
+    return '<button class="subj-sel-btn'+(on?' on':'')+'" style="'+(on?'background:'+s.color+';color:#fff;border-color:'+s.color+';':'')+'" onclick="selectQSubj(&#39;'+s.id+'&#39;)">'+s.name+'</button>';
+  }).join('');
+}
+function selectQSubj(id){ qSelectedSubj=id; renderQSubjGrid(); }
+// ボタンは押すたびに足していく（10を5回押せば50）
+function qAdd(n){
+  const el=document.getElementById('qNum');
+  const now=parseInt(el.value,10)||0;
+  el.value=Math.min(9999, now+n);
+}
+function qClear(){ document.getElementById('qNum').value=''; }
+function saveQ(){
+  const n=parseInt(document.getElementById('qNum').value,10)||0;
+  const date=document.getElementById('qDate').value||ymd(new Date());
+  if(n<=0){ showToast('問題数を入れてください'); return; }
+  state.lastQSubj=qSelectedSubj;
+  if(editingQId){
+    const r=qRecs().find(function(x){ return x.id===editingQId; });
+    if(r){ r.subjId=qSelectedSubj; r.n=n; r.date=date; }
+    showToast('記録を直しました（'+qNumFmt(n)+'問）');
+  } else {
+    qRecs().push({id:uid(),date:date,subjId:qSelectedSubj,n:n});
+    showToast(qSubjById(qSelectedSubj).name+' '+qNumFmt(n)+'問を記録しました✏️');
+  }
+  saveState(); closeQModal(); renderQ();
+}
+function deleteQ(id){
+  if(!confirm('この記録を削除しますか？')) return;
+  state.qLog=qRecs().filter(function(r){ return r.id!==id; });
+  saveState(); renderQ(); showToast('削除しました');
+}
+function deleteQFromModal(){
+  if(!editingQId||!confirm('この記録を削除しますか？')) return;
+  state.qLog=qRecs().filter(function(r){ return r.id!==editingQId; });
+  saveState(); closeQModal(); renderQ(); showToast('削除しました');
+}
+function resetQLog(){
+  if(!confirm('解いた問題数の記録をすべて削除しますか？\nこの操作は元に戻せません。')) return;
+  state.qLog=[];
+  saveState(); renderQ(); showToast('問題数の記録をリセットしました');
 }
 
 // ========== 科目ボタン ==========
@@ -2040,12 +2562,13 @@ function resetFutoCards(){
 function resetAllData(){
   if(!confirm('すべてのデータを削除して最初からやり直しますか？\nこの操作は元に戻せません。')) return;
   localStorage.removeItem('sharoshi_v4');
-  state={ seeded:true, examDate:null, studyLog:{}, futoCards:[], kodanCards:[], kodanCopies:{}, kodanMemos:{}, timeLog:[], timerStart:null };
+  state={ seeded:true, examDate:null, studyLog:{}, futoCards:[], kodanCards:[], kodanCopies:{}, kodanMemos:{}, timeLog:[], timerStart:null, qLog:[], qGoal:null };
   saveState();
   renderSubjGrid();
   renderHeader();
   renderPhaseBar();
   renderTime();
+  renderQ();
   showToast('データをリセットしました');
   showPage('Home', document.querySelector('.nav-btn'));
 }
@@ -2059,6 +2582,7 @@ renderPhaseBar();
 renderSubjGrid();
 loadMotiv();
 renderTime();
+renderQ();
 setInterval(()=>{ renderHeader(); renderPhaseBar(); },60000);
 setInterval(()=>{ if(state.timerStart) tickTimer(); },1000);
 </script>
