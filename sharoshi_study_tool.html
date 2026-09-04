@@ -1180,8 +1180,9 @@ function renderHelp(){
         </div>
         <p>いちばん上に<strong>これまでに解いた問題数の合計</strong>が出ます。</p>
         <p>その下の1本の帯が科目ごとの内訳です。解くほど、その科目の色がのびていきます。<strong>色の幅を見れば「この科目だけ手をつけていない」がすぐわかります。</strong></p>
-        <p>まちがえて入れたときは、下の<strong>「記録をなおす」</strong>をタップすると一覧が出るので、✏️で直す・✕で消すができます。ふだんは畳んであります。</p>
-        <p>前の日の分を入れ忘れたときも、いったん保存してから「記録をなおす」で✏️を押せば、<strong>日付を直せます</strong>（直すときだけ日付の欄が出ます）。</p>
+        <p>いちばん下の「📝 記録」には、時間管理と同じ形で一覧が出ます。<strong>今日と昨日の分だけ</strong>が開いた状態で、それより前は「それより前の記録」に畳まれています。タップすると月ごと→日ごと→中身の順に開きます。長くならないので画面がすっきりしたままです。</p>
+        <p>まちがえて入れたときは、その行の<strong>✏️で直す・✕で消す</strong>ができます。</p>
+        <p>前の日の分を入れ忘れたときも、いったん保存してから✏️を押せば<strong>日付を直せます</strong>（直すときだけ日付の欄が出ます）。</p>
       </div>
     </div>
     <div class="help-card">
@@ -1214,12 +1215,12 @@ function renderHelp(){
           <div style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid var(--border);">
             <span style="width:9px;height:9px;border-radius:3px;background:#9b72d0;"></span>
             <span style="flex:1;font-size:12px;font-weight:700;">徴収</span>
-            <span style="font-size:11px;font-weight:700;color:#c0392b;">30日 解いてない…</span>
+            <span style="font-size:11px;font-weight:700;color:#c0392b;">30日前</span>
           </div>
           <div style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid var(--border);">
             <span style="width:9px;height:9px;border-radius:3px;background:#3ec9bc;"></span>
             <span style="flex:1;font-size:12px;font-weight:700;">厚年</span>
-            <span style="font-size:11px;font-weight:700;color:#c0392b;">20日 解いてない…</span>
+            <span style="font-size:11px;font-weight:700;color:#c0392b;">20日前</span>
           </div>
           <div style="display:flex;align-items:center;gap:9px;padding:8px 4px;">
             <span style="width:9px;height:9px;border-radius:3px;background:#5aaee8;"></span>
@@ -1228,7 +1229,7 @@ function renderHelp(){
           </div>
         </div>
         <p><strong>直近7日間</strong>は、この1週間で毎日何問解いたかの棒グラフです。今日が右端で、今日の曜日だけ色が変わります。</p>
-        <p><strong>しばらく解いていない科目</strong>は、最後に解いた日から日数が長い順に5つ出ます。7日以上あいた科目と、まだ一度も解いていない科目は赤字になります。</p>
+        <p><strong>しばらく解いていない科目</strong>は、最後に解いた日から日数が長い順に5つ出ます。「今日」「昨日」「◯日前」と出て、<strong>7日以上あいた科目と、まだ一度も解いていない科目は赤い字</strong>になります。</p>
         <p>ホームの「テキスト読んだ・問題解いた」の放置表示と同じ考え方ですが、こちらは<strong>実際に入れた問題数がもと</strong>になっています。</p>
         <div class="help-tip">「🎲 ランダム」で入れた分は科目に振り分けられないので、この一覧の日数は動きません。科目ごとの演習が足りているかを見るための表示です。</div>
       </div>
@@ -1976,8 +1977,7 @@ function renderQNeglect(){
     if(!x.last){ txt='まだ解いていません'; cls='warn'; }
     else if(x.ago===0){ txt='今日'; cls='ok'; }
     else if(x.ago===1){ txt='昨日'; cls='ok'; }
-    else if(x.ago>=7){ txt=x.ago+'日 解いてない…'; cls='warn'; }
-    else { txt=x.ago+'日前'; cls='ok'; }
+    else { txt=x.ago+'日前'; cls=(x.ago>=7?'warn':'ok'); }
     return '<div class="q-neg-row">'
       +'<span class="q-dot" style="background:'+x.subj.color+';"></span>'
       +'<span class="q-neg-name">'+x.subj.name+'</span>'
@@ -2004,7 +2004,7 @@ function renderQCard(){
   if(!total||!list.length){
     bar.innerHTML='';
     leg.innerHTML='<div style="grid-column:1/-1;font-size:12px;color:var(--sub);text-align:center;padding:6px 0;">まだ記録がありません。ホームの「今日は何問解いた？」から入れてみましょう。</div>';
-    renderQFold();
+    renderQList();
     return;
   }
   bar.innerHTML=list.map(function(x){
@@ -2016,36 +2016,90 @@ function renderQCard(){
       +'<span class="q-legend-name">'+x.subj.name+'</span>'
       +'<span class="q-legend-num">'+qNumFmt(x.n)+'問</span></div>';
   }).join('');
-  renderQFold();
+  renderQList();
 }
 
-// 記録をなおす（ふだんは畳んでおく）
-let qOpenFold=false;
-function qToggleFold(){ qOpenFold=!qOpenFold; renderQFold(); }
-function renderQFold(){
-  const w=document.getElementById('qFoldWrap'); if(!w) return;
-  const recs=qRecs();
-  if(!recs.length){ w.innerHTML=''; return; }
-  let html='<button class="tm-fold" style="margin-bottom:0;" onclick="qToggleFold()">'
-    +'<span class="tm-fold-ar'+(qOpenFold?' open':'')+'">▶</span>'
-    +'<span class="tm-fold-ttl">記録をなおす</span>'
-    +'<span class="tm-fold-sub">'+recs.length+'件</span></button>';
-  if(qOpenFold){
-    const sorted=recs.slice().sort(function(a,b){ return a.date<b.date?1:(a.date>b.date?-1:0); }).slice(0,30);
-    html+='<div class="tm-fold-body" style="margin-top:8px;">'+sorted.map(function(r){
+// 記録の一覧（時間管理と同じ形。今日と昨日だけ開いて、それより前は畳む）
+let qOpenOlder=false, qOpenMonth={}, qOpenDay={};
+function qToggleOlder(){ qOpenOlder=!qOpenOlder; renderQList(); }
+function qToggleMonth(k){ qOpenMonth[k]=!qOpenMonth[k]; renderQList(); }
+function qToggleDay(k){ qOpenDay[k]=!qOpenDay[k]; renderQList(); }
+function qSumOf(list){ return list.reduce(function(a,r){ return a+(r.n||0); },0); }
+// 1日ぶんの中身（科目の並び順どおり）
+function qRowsHtml(list){
+  const order=qSubjList().map(function(s){ return s.id; });
+  return list.slice().sort(function(a,b){ return order.indexOf(a.subjId)-order.indexOf(b.subjId); })
+    .map(function(r){
       const s=qSubjById(r.subjId);
-      const d=new Date(r.date+'T00:00:00');
-      return '<div class="tm-ses" style="border-top:none;border-bottom:1px solid var(--border);">'
-        +'<span>'+(d.getMonth()+1)+'/'+d.getDate()+'　<span style="color:'+s.color+';font-weight:700;">'+s.name+'</span></span>'
+      return '<div class="tm-ses">'
+        +'<span style="color:'+s.color+';font-weight:700;">'+s.name+'</span>'
         +'<span style="display:flex;align-items:center;gap:6px;">'
-        +'<strong style="color:var(--text);font-size:12px;">'+qNumFmt(r.n)+'問</strong>'
+        +'<strong style="color:var(--text);font-size:12px;margin-right:3px;">'+qNumFmt(r.n)+'問</strong>'
         +'<button class="tm-ses-del" onclick="openQModal(&#39;'+r.id+'&#39;)">✏️</button>'
         +'<button class="tm-ses-del" onclick="deleteQ(&#39;'+r.id+'&#39;)">✕</button></span></div>';
-    }).join('')
-    +(recs.length>30?'<div style="font-size:11px;color:var(--sub);text-align:center;padding:8px 0;">新しい30件を表示しています</div>':'')
-    +'</div>';
+    }).join('');
+}
+function renderQList(){
+  const el=document.getElementById('qFoldWrap'); if(!el) return;
+  const recs=qRecs();
+  if(!recs.length){
+    el.innerHTML='<div class="empty">まだ記録がありません。<br>ホームの「今日は何問解いた？」から入れてみましょう。</div>';
+    return;
   }
-  w.innerHTML=html;
+  const byDate={};
+  recs.forEach(function(r){ (byDate[r.date]=byDate[r.date]||[]).push(r); });
+  const dates=Object.keys(byDate).sort().reverse();
+
+  const n=new Date(), td=ymd(n);
+  const y=new Date(n); y.setDate(n.getDate()-1);
+  const yst=ymd(y);
+  const recent=dates.filter(function(k){ return k>=yst; });
+  const older=dates.filter(function(k){ return k<yst; });
+
+  let html='';
+  html+=recent.map(function(key){
+    const list=byDate[key];
+    const badge=(key===td)?'<span class="tm-badge">今日</span>':'';
+    return '<div class="tm-day"><div class="tm-day-head">'
+      +'<span class="tm-day-date">'+tmDayLabel(key)+badge+'</span>'
+      +'<span class="tm-day-sum">'+qNumFmt(qSumOf(list))+'問</span></div>'
+      +qRowsHtml(list)+'</div>';
+  }).join('');
+  if(!recent.length) html+='<div class="tm-none">今日と昨日はまだ記録がありません。</div>';
+
+  if(older.length){
+    let oSum=0; older.forEach(function(k){ oSum+=qSumOf(byDate[k]); });
+    html+='<button class="tm-fold" onclick="qToggleOlder()">'+tmArrow(qOpenOlder)
+      +'<span class="tm-fold-ttl">それより前の記録</span>'
+      +'<span class="tm-fold-sub">'+older.length+'日 ・ '+qNumFmt(oSum)+'問</span></button>';
+    if(qOpenOlder){
+      const months={};
+      older.forEach(function(k){ const m=k.slice(0,7); (months[m]=months[m]||[]).push(k); });
+      const mkeys=Object.keys(months).sort().reverse();
+      html+='<div class="tm-fold-body">'+mkeys.map(function(m){
+        const dks=months[m];
+        let mSum=0; dks.forEach(function(k){ mSum+=qSumOf(byDate[k]); });
+        const label=m.slice(0,4)+'年'+parseInt(m.slice(5,7),10)+'月';
+        let out='<button class="tm-fold tm-fold-m" onclick="qToggleMonth(&#39;'+m+'&#39;)">'
+          +tmArrow(qOpenMonth[m])
+          +'<span class="tm-fold-ttl">'+label+'</span>'
+          +'<span class="tm-fold-sub">'+dks.length+'日 ・ '+qNumFmt(mSum)+'問</span></button>';
+        if(qOpenMonth[m]){
+          out+='<div class="tm-fold-body">'+dks.map(function(k){
+            const list=byDate[k];
+            let row='<button class="tm-drow" onclick="qToggleDay(&#39;'+k+'&#39;)">'
+              +tmArrow(qOpenDay[k])
+              +'<span class="tm-drow-date">'+tmDayLabel(k)+'</span>'
+              +'<span class="tm-drow-sum">'+qNumFmt(qSumOf(list))+'問</span></button>';
+            if(qOpenDay[k]) row+='<div class="tm-drow-body">'+qRowsHtml(list)+'</div>';
+            return row;
+          }).join('')+'</div>';
+        }
+        return out;
+      }).join('')+'</div>';
+    }
+  }
+  el.innerHTML=html;
 }
 
 // 入力画面
